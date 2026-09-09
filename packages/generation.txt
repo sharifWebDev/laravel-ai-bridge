@@ -1,0 +1,313 @@
+mkdir -p app/Contracts app/Services app/Http/Controllers
+
+cat << 'EOF' > app/Contracts/ToolProviderInterface.php
+<?php
+
+namespace App\Contracts;
+
+interface ToolProviderInterface
+{
+    public function getTools(): array;
+}
+EOF
+
+cat << 'EOF' > app/Contracts/ToolSelectorInterface.php
+<?php
+
+namespace App\Contracts;
+
+interface ToolSelectorInterface
+{
+    public function selectRelevantTools(string $userPrompt, array $tools): array;
+}
+EOF
+
+cat << 'EOF' > app/Contracts/PromptProcessorInterface.php
+<?php
+
+namespace App\Contracts;
+
+interface PromptProcessorInterface
+{
+    public function processPrompt(string $userPrompt): array;
+}
+EOF
+
+cat << 'EOF' > app/Contracts/AiProcessorInterface.php
+<?php
+
+namespace App\Contracts;
+
+interface AiProcessorInterface extends ToolSelectorInterface, PromptProcessorInterface
+{
+}
+EOF
+
+cat << 'EOF' > app/Services/CachedControllerToolProvider.php
+<?php
+
+namespace App\Services;
+
+use App\Contracts\ToolProviderInterface;
+use Illuminate\Support\Facades\Cache;
+use ReflectionClass;
+use ReflectionMethod;
+
+class CachedControllerToolProvider implements ToolProviderInterface
+{
+    public function getTools(): array
+    {
+        return Cache::remember('ai_controller_tools', 3600, function () {
+            $allTools = [];
+            $controllers = [
+                \App\Http\Controllers\UserController::class,
+                \App\Http\Controllers\InventoryController::class,
+            ];
+
+            foreach ($controllers as $controllerClass) {
+                if (!class_exists($controllerClass)) {
+                    continue;
+                }
+
+                $reflection = new ReflectionClass($controllerClass);
+
+                if ($reflection->implementsInterface(ToolProviderInterface::class)) {
+                    $instance = app($controllerClass);
+                    $allTools = array_merge($allTools, $instance->getTools());
+                    continue;
+                }
+
+                foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+                    $methodName = $method->getName();
+
+                    if ($this->isExcludedMethod($methodName)) {
+                        continue;
+                    }
+
+                    $allTools[$methodName] = [
+                        "name" => $methodName,
+                        "description" => "Execute {$methodName} on " . class_basename($controllerClass),
+                        "permission" => $this->getDefaultPermission($methodName),
+                        "parameters" => [
+                            "type" => "OBJECT",
+                            "properties" => ["id" => ["type" => "STRING", "description" => "Record ID"]]
+                        ]
+                    ];
+                }
+            }
+
+            return $allTools;
+        });
+    }
+
+    protected function isExcludedMethod(string $name): bool
+    {
+        return in_array($name, ['__construct', 'middleware', 'getMiddleware', 'callAction']) || str_starts_with($name, '_');
+    }
+
+    protected function getDefaultPermission(string $methodName): ?string
+    {
+        return match($methodName) {
+            'store', 'create' => 'create-records',
+            'update', 'edit' => 'update-records',
+            'destroy' => 'delete-records',
+            default => 'view-records',
+        };
+    }
+}
+EOF
+
+cat << 'EOF' > app/Services/SemanticToolSelector.php
+<?php
+
+namespace App\Services;
+
+use App\Contracts\ToolSelectorInterface;
+use Illuminate\Support\Facades\Auth;
+
+class SemanticToolSelector implements ToolSelectorInterface
+{
+    public function selectRelevantTools(string $userPrompt, array $tools): array
+    {
+        $user = Auth::user();
+        $prompt = strtolower($userPrompt);
+        $selectedTools = [];
+
+        foreach ($tools as $name => $tool) {
+            if (isset($tool['permission']) && $user) {
+                $hasPermission = method_exists($user, 'can') 
+                    ? $user->can($tool['permission']) 
+                    : true;
+
+                if (!$hasPermission) {
+                    continue;
+                }
+            }
+
+            $keywords = explode(' ', strtolower($tool['description']));
+            $matchScore = 0;
+            
+            foreach ($keywords as $word) {
+                if (strlen($word) > 3 && str_contains($prompt, $word)) {
+                    $matchScore++;
+                }
+            }
+
+            if ($matchScore > 0 || str_contains($prompt, strtolower($name))) {
+                $selectedTools[] = $tool;
+            }
+        }
+
+        if (empty($selectedTools)) {
+            $selectedTools = array_slice(array_values($tools), 0, 3);
+        }
+
+        return [["function_declarations" => $selectedTools]];
+    }
+}
+EOF
+
+cat << 'EOF' > app/Services/AiService.php
+<?php
+
+namespace App\Services;
+
+use App\Contracts\AiProcessorInterface;
+use App\Contracts\ToolProviderInterface;
+use App\Contracts\ToolSelectorInterface;
+use Illuminate\Support\Facades\Http;
+
+class AiService implements AiProcessorInterface
+{
+    protected ToolProviderInterface $toolProvider;
+    protected ToolSelectorInterface $toolSelector;
+    protected string $apiKey;
+
+    public function __construct(ToolProviderInterface $toolProvider, ToolSelectorInterface $toolSelector)
+    {
+        $this->toolProvider = $toolProvider;
+        $this->toolSelector = $toolSelector;
+        $this->apiKey = config('services.gemini.key');
+    }
+
+    public function selectRelevantTools(string $userPrompt, array $tools): array
+    {
+        return $this->toolSelector->selectRelevantTools($userPrompt, $tools);
+    }
+
+    public function processPrompt(string $userPrompt): array
+    {
+        $allTools = $this->toolProvider->getTools();
+        $tools = $this->selectRelevantTools($userPrompt, $allTools);
+
+        if (empty($tools[0]['function_declarations'])) {
+            return [
+                'unauthorized' => true,
+                'message' => 'You do not have the necessary permissions to perform this action.'
+            ];
+        }
+
+        $response = Http::post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $this->apiKey, [
+            "contents" => [["parts" => [["text" => $userPrompt]]]],
+            "tools" => $tools
+        ]);
+
+        return $response->json();
+    }
+}
+EOF
+
+cat << 'EOF' > app/Http/Controllers/UserController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Contracts\ToolProviderInterface;
+use Illuminate\Http\Request;
+
+class UserController extends Controller implements ToolProviderInterface
+{
+    public function getTools(): array
+    {
+        return [
+            'exportUsers' => [
+                "name" => "exportUsers",
+                "description" => "Export user list in CSV or Excel format.",
+                "permission" => "view-records",
+                "parameters" => [
+                    "type" => "OBJECT",
+                    "properties" => [
+                        "format" => ["type" => "STRING", "description" => "csv or excel"]
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    public function exportUsers(Request $request)
+    {
+        return response()->json(['message' => 'Exporting users...']);
+    }
+}
+EOF
+
+cat << 'EOF' > app/Http/Controllers/InventoryController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class InventoryController extends Controller
+{
+    public function index(Request $request)
+    {
+        return response()->json(['message' => 'Fetching inventory items...']);
+    }
+}
+EOF
+
+cat << 'EOF' > app/Http/Controllers/AiController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Contracts\AiProcessorInterface;
+
+class AiController extends Controller
+{
+    protected AiProcessorInterface $aiService;
+
+    public function __construct(AiProcessorInterface $aiService)
+    {
+        $this->aiService = $aiService;
+    }
+
+    public function handle(Request $request)
+    {
+        $userPrompt = $request->input('prompt');
+        $aiData = $this->aiService->processPrompt($userPrompt);
+
+        if (isset($aiData['unauthorized']) && $aiData['unauthorized']) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $aiData['message']
+            ], 403);
+        }
+
+        $functionCall = $aiData['candidates'][0]['content']['parts'][0]['functionCall'] ?? null;
+
+        if ($functionCall) {
+            return response()->json([
+                'status' => 'success',
+                'action' => $functionCall['name'],
+                'arguments' => $functionCall['args'] ?? []
+            ]);
+        }
+
+        $textResponse = $aiData['candidates'][0]['content']['parts'][0]['text'] ?? "No response.";
+        return response()->json(['message' => $textResponse]);
+    }
+}
+EOF
