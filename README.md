@@ -198,3 +198,9 @@ See `config/ai-bridge.php` for every tunable: retrieval weights/thresholds, cach
 composer install
 vendor/bin/phpunit
 ```
+## Chat UI
+![alt text](<Screenshot from 2026-09-11 17-01-16.png>)
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+![alt text](<Screenshot from 2026-09-11 16-23-20.png>)
