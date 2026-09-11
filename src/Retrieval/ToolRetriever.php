@@ -79,8 +79,11 @@ final class ToolRetriever
         // Only ever score/rank tools the caller is actually permitted to
         // use, so the AI model never even learns disallowed tools exist.
         $allowedTools = array_filter($allTools, function ($tool) use ($context) {
-            return $this->permissionFilter->allowed($tool, $context)
-                && $this->permissionFilter->tenantAllowed($tool, $context);
+            if ($context->user !== null && !$this->permissionFilter->allowed($tool, $context)) {
+                return false;
+            }
+
+            return $this->permissionFilter->tenantAllowed($tool, $context);
         });
 
         if (empty($allowedTools)) {
@@ -116,9 +119,17 @@ final class ToolRetriever
             $lexicalScore = $this->lexicalScorer->score($normalized, $tool);
             $metadataScore = $this->exactMentionBonus($normalized, $tool->name());
 
-            $finalScore = ($semanticScore * $semanticWeight)
-                + ($lexicalScore * $lexicalWeight)
-                + ($metadataScore * $metadataWeight);
+            if (empty($semanticScores)) {
+                $finalScore = ($lexicalScore * 0.8) + ($metadataScore * 0.2);
+            } else {
+                $finalScore = ($semanticScore * $semanticWeight)
+                    + ($lexicalScore * $lexicalWeight)
+                    + ($metadataScore * $metadataWeight);
+            }
+
+            if ($finalScore <= 0.0 && $lexicalScore <= 0.0 && $metadataScore <= 0.0) {
+                continue;
+            }
 
             if ($finalScore < $minSimilarity) {
                 continue;

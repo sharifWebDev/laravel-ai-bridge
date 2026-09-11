@@ -52,7 +52,8 @@ class AiBridgeServiceProvider extends ServiceProvider
                 $registry->register($toolClass);
             }
 
-            if (config('ai-bridge.legacy_controllers.enabled', true)) {
+            $hasExplicitControllerConfig = !empty(config('ai-bridge.controllers', []));
+            if ($hasExplicitControllerConfig || config('ai-bridge.legacy_controllers.enabled', true)) {
                 $registry->mergeLegacyProvider($app->make(ToolProviderInterface::class));
             }
 

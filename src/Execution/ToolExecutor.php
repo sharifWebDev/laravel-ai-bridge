@@ -46,11 +46,11 @@ final class ToolExecutor
 
             $validated = $this->validator->validate($tool, $arguments);
 
-            if ($context->user === null) {
+            if ($tool->permission() !== null && $context->user === null) {
                 throw ToolAuthorizationException::loginRequired($toolName);
             }
 
-            if (!$this->permissionFilter->allowed($tool, $context)) {
+            if ($context->user !== null && !$this->permissionFilter->allowed($tool, $context)) {
                 throw ToolAuthorizationException::forTool($toolName);
             }
 
@@ -58,7 +58,7 @@ final class ToolExecutor
                 throw ToolAuthorizationException::missingTenant($toolName);
             }
 
-            if (!$tool->authorize($context->user, $validated, $context)) {
+            if ($context->user !== null && !$tool->authorize($context->user, $validated, $context)) {
                 throw ToolAuthorizationException::forTool($toolName);
             }
 

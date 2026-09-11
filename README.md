@@ -4,6 +4,7 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/sharifuddin/laravel-ai-bridge.svg?style=flat-square)](https://packagist.org/packages/sharifuddin/laravel-ai-bridge)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
 [![PHP Version](https://img.shields.io/badge/PHP-%5E8.1%20%7C%20%5E8.2%20%7C%20%5E8.3%20%7C%20%5E8.4-blue.svg?style=flat-square)](https://php.net)
+[![Laravel Version](https://img.shields.io/badge/Laravel-9.x%2B%20%7C%2010.x%20%7C%2011.x%20%7C%2012.x-orange)](https://laravel.com)
 
 A production-grade **Laravel AI orchestration package**. Laravel AI Bridge lets an LLM (Gemini, with a pluggable provider interface) discover the right application tool for a natural-language prompt via **hybrid semantic + lexical retrieval**, then executes it securely — with strict argument validation, Laravel-authorization re-checks, multi-tenant isolation, and aggressive token/cost caching.
 
@@ -35,10 +36,21 @@ A production-grade **Laravel AI orchestration package**. Laravel AI Bridge lets 
 
 ## 📦 Installation
 
+### 1. Install via Composer
+
 ```bash
 composer require sharifuddin/laravel-ai-bridge
+```
+
+### 2. Publish Configuration
+
+```bash
 php artisan vendor:publish --tag=ai-bridge-config
 ```
+
+### 3. Configure Environment
+
+Add the following to your `.env` file:
 
 ```env
 GEMINI_API_KEY=your-gemini-api-key
@@ -53,6 +65,8 @@ AI_VECTOR_STORE=postgresql   # default
 # AI_VECTOR_STORE=pinecone
 # AI_VECTOR_STORE=array      # dependency-free, local dev/testing only
 ```
+
+### 4. Vector Store Architecture
 
 ```
 VectorStoreInterface
@@ -117,6 +131,102 @@ use Sharifuddin\LaravelAiBridge\Facades\AI;
 AI::tool(\App\AiTools\ListUsersTool::class);
 ```
 
+### Custom tool example for your own app
+
+This is the pattern most apps use when they want AI to call their own business logic:
+
+```php
+<?php
+
+namespace App\AiTools;
+
+use Sharifuddin\LaravelAiBridge\Execution\ExecutionContext;
+use Sharifuddin\LaravelAiBridge\Tools\AbstractTool;
+
+class WeatherTool extends AbstractTool
+{
+    public function name(): string
+    {
+        return 'get_weather';
+    }
+
+    public function category(): string
+    {
+        return 'weather';
+    }
+
+    public function description(): string
+    {
+        return 'Get the current weather for a city using the app weather service.';
+    }
+
+    public function parametersSchema(): array
+    {
+        return [
+            'city' => [
+                'type' => 'string',
+                'required' => true,
+                'description' => 'City name, for example Dhaka or London',
+            ],
+            'unit' => [
+                'type' => 'string',
+                'required' => false,
+                'enum' => ['celsius', 'fahrenheit'],
+                'default' => 'celsius',
+            ],
+        ];
+    }
+
+    public function permission(): ?string
+    {
+        return null; // or 'view-weather' if you want to require authorization
+    }
+
+    public function metadata(): array
+    {
+        return [
+            'aliases' => ['weather report', 'current weather', 'forecast'],
+            'entity' => 'weather',
+            'action' => 'lookup',
+        ];
+    }
+
+    public function execute(array $arguments, ExecutionContext $context): mixed
+    {
+        $city = $arguments['city'];
+        $unit = $arguments['unit'] ?? 'celsius';
+
+        return app(\App\Services\WeatherService::class)->getForCity($city, $unit);
+    }
+}
+```
+
+And register it in a service provider:
+
+```php
+use Sharifuddin\LaravelAiBridge\Facades\AI;
+
+public function boot(): void
+{
+    AI::tool(\App\AiTools\WeatherTool::class);
+}
+```
+
+Then index and ask the assistant:
+
+```bash
+php artisan ai:tools:index
+```
+
+```json
+POST /api/ai/prompt
+{
+  "prompt": "What is the weather in Dhaka today?"
+}
+```
+
+The AI will only see the declarations for the tools that match the prompt, and it will execute the selected custom tool only after validation + re-authorization.
+
 Index it into the vector store, then chat:
 
 ```bash
@@ -156,7 +266,7 @@ The original `AiProcessorInterface` methods (`processPrompt()`, `selectRelevantT
 
 ---
 
-## ⚡ Artisan commands
+## ⚡ Artisan Commands
 
 ```bash
 php artisan ai:tools:index                 # index new/changed tools (skips unchanged embeddings)
@@ -183,12 +293,22 @@ See `config/ai-bridge.php` for every tunable: retrieval weights/thresholds, cach
 
 ---
 
-## 🔐 Security model
+## 🔐 Security Model
 
 * AI never decides authorization — Laravel does, twice: once at retrieval (so disallowed tools are never even shown to the model) and again immediately before execution.
 * Arguments are whitelisted and validated against each tool's declared schema (types, `min`/`max`, `enum`) — an AI-supplied `per_page=999999` is rejected, not clamped silently.
 * Only tools registered in the `ToolRegistry` can ever be executed — there is no arbitrary class/method invocation from AI-generated strings.
 * Cache keys fold in a security fingerprint (user + tenant), so retrieval/embedding caches can never serve one user's/tenant's results to another.
+
+---
+
+## 💬 Chat UI
+
+![Chat UI 1](<Screenshot from 2026-09-11 17-01-16.png>)
+![Chat UI 2](image.png)
+![Chat UI 3](image-1.png)
+![Chat UI 4](image-2.png)
+![Chat UI 5](<Screenshot from 2026-09-11 16-23-20.png>)
 
 ---
 
@@ -198,9 +318,91 @@ See `config/ai-bridge.php` for every tunable: retrieval weights/thresholds, cach
 composer install
 vendor/bin/phpunit
 ```
-## Chat UI
-![alt text](<Screenshot from 2026-09-11 17-01-16.png>)
-![alt text](image.png)
-![alt text](image-1.png)
-![alt text](image-2.png)
-![alt text](<Screenshot from 2026-09-11 16-23-20.png>)
+
+---
+
+## 📄 License
+
+This package is open-sourced software licensed under the [MIT license](LICENSE).
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 👨‍💻 Author
+
+**Sharif Uddin**
+
+- GitHub: [@sharifwebdev](https://github.com/sharifwebdev)
+- Email: sharif.webpro@gmail.com
+- Website: [https://sharifwebdev.github.io/](https://sharifwebdev.github.io/)
+
+---
+
+## 🌟 Support
+
+If you find this package useful, please consider:
+
+- ⭐ Starring the repository
+- 🐛 Reporting issues
+- 💡 Suggesting features
+- 🔧 Submitting pull requests
+
+---
+
+## 📚 Changelog
+
+Detailed changes for each release are documented in the [CHANGELOG.md](CHANGELOG.md).
+
+---
+
+## 🔗 Links
+
+- [Packagist](https://packagist.org/packages/sharifuddin/laravel-ai-bridge)
+- [GitHub Repository](https://github.com/sharifuddin/laravel-ai-bridge)
+- [Issue Tracker](https://github.com/sharifuddin/laravel-ai-bridge/issues)
+- [Documentation](https://github.com/sharifuddin/laravel-ai-bridge/wiki)
+
+---
+
+## 🎯 Quick Start Cheat Sheet
+
+```bash
+# 1. Install
+composer require sharifuddin/laravel-ai-bridge
+
+# 2. Publish config
+php artisan vendor:publish --tag=ai-bridge-config
+
+# 3. Add to .env
+GEMINI_API_KEY=your-gemini-api-key
+AI_BRIDGE_EMBEDDING_DRIVER=gemini
+AI_VECTOR_STORE=postgresql
+
+# 4. Define a tool
+AI::tool(\App\AiTools\ListUsersTool::class);
+
+# 5. Index tools
+php artisan ai:tools:index
+
+# 6. Chat via API
+POST /api/ai/prompt
+ "prompt": "Show me all active users"
+
+# OR use the Chat UI
+GET /ai/assistant
+```
+
+---
+
+**Happy Building!** 🤖✨

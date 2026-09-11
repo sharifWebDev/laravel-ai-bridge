@@ -6,6 +6,7 @@ use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Sharifuddin\LaravelAiBridge\AiBridgeServiceProvider;
 use Sharifuddin\LaravelAiBridge\Contracts\EmbeddingProviderInterface;
 use Sharifuddin\LaravelAiBridge\Contracts\ToolInterface;
+use Sharifuddin\LaravelAiBridge\Contracts\ToolRegistryInterface;
 use Sharifuddin\LaravelAiBridge\Contracts\VectorStoreInterface;
 use Sharifuddin\LaravelAiBridge\DTO\VectorRecord;
 use Sharifuddin\LaravelAiBridge\Tests\Fakes\FakeEmbeddingProvider;
@@ -71,6 +72,16 @@ abstract class TestCase extends OrchestraTestCase
     protected function useFakeEmbeddings(array $vectors): FakeEmbeddingProvider
     {
         FakeEmbeddingProvider::$vectors = $vectors;
+
+        // Start each test from a clean registry, retriever, and vector state to
+        // avoid stale tool registrations or cached search results leaking across cases.
+        $this->app->forgetInstance(ToolRegistryInterface::class);
+        $this->app->forgetInstance(\Sharifuddin\LaravelAiBridge\Retrieval\ToolRetriever::class);
+        $this->app->forgetInstance(\Sharifuddin\LaravelAiBridge\Services\AiService::class);
+        $this->app->forgetInstance(\Sharifuddin\LaravelAiBridge\Execution\ToolExecutor::class);
+        \Illuminate\Support\Facades\Cache::forget('ai-bridge:vector:array:index');
+        \Illuminate\Support\Facades\Cache::flush();
+
         $provider = new FakeEmbeddingProvider();
 
         $this->app->extend(EmbeddingProviderInterface::class, fn () => $provider);

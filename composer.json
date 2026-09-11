@@ -45,7 +45,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Sharifuddin\\LaravelAiBridge\\Tests\\": "tests/"
+            "Sharifuddin\\LaravelAiBridge\\Tests\\": "tests/",
+            "App\\": "tests/Fixtures/App/"
         }
     },
     "extra": {

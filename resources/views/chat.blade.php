@@ -497,7 +497,7 @@
                 <div class="flex items-center space-x-2.5">
                     <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></div>
                     <h1 class="text-sm md:text-base font-semibold tracking-tight" style="color: var(--text-primary);">
-                        AI Bridge <span style="color: var(--accent);" class="font-light">Assistant</span>
+                        AI Bridge Assistant
                     </h1>
                 </div>
             </div>
