@@ -67,6 +67,7 @@ AI_VECTOR_STORE=mysql
 AI_BRIDGE_LEGACY_ENFORCE_PERMISSIONS=false
 ```
 
+# For postgresql
 ```env
 GEMINI_API_KEY=your-gemini-api-key
 AI_BRIDGE_EMBEDDING_DRIVER=gemini
@@ -320,8 +321,14 @@ See `config/ai-bridge.php` for every tunable: retrieval weights/thresholds, cach
 ## 💬 Chat UI
 
 ![Chat UI 2](image-4.png)
+
+
 ![Chat UI 4](image-3.png)
+
+
 ![Chat UI 1](image-5.png)
+
+
 ![Chat UI 5](<Screenshot from 2026-09-11 16-23-20.png>)
 
 ---
