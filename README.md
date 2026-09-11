@@ -52,6 +52,21 @@ php artisan vendor:publish --tag=ai-bridge-config
 
 Add the following to your `.env` file:
 
+
+# For MYSQL
+
+```env
+GEMINI_API_KEY=''
+AI_BRIDGE_EMBEDDING_DRIVER=gemini
+AI_BRIDGE_EMBEDDING_MODEL=gemini-embedding-001
+
+# Vector store (default: postgresql, via the pgvector extension on your
+# existing Postgres connection). Switch drivers with a single env var:
+# AI_VECTOR_STORE=postgresql   # default
+AI_VECTOR_STORE=mysql
+AI_BRIDGE_LEGACY_ENFORCE_PERMISSIONS=false
+```
+
 ```env
 GEMINI_API_KEY=your-gemini-api-key
 AI_BRIDGE_EMBEDDING_DRIVER=gemini
