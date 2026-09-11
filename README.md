@@ -304,10 +304,9 @@ See `config/ai-bridge.php` for every tunable: retrieval weights/thresholds, cach
 
 ## 💬 Chat UI
 
-![Chat UI 1](<Screenshot from 2026-09-11 17-01-16.png>)
-![Chat UI 2](image.png)
-![Chat UI 3](image-1.png)
-![Chat UI 4](image-2.png)
+![Chat UI 2](image-4.png)
+![Chat UI 4](image-3.png)
+![Chat UI 1](image-5.png)
 ![Chat UI 5](<Screenshot from 2026-09-11 16-23-20.png>)
 
 ---
