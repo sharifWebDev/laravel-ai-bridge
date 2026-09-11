@@ -1,0 +1,63 @@
+{
+    "name": "sharifuddin/laravel-ai-bridge",
+    "description": "A professional, robust, and modular AI-driven integration for Laravel, enabling LLMs (like Gemini) to dynamically execute application controller methods as tools.",
+    "keywords": [
+        "laravel",
+        "ai",
+        "gemini",
+        "llm",
+        "function-calling",
+        "tools",
+        "laravel-package"
+    ],
+    "homepage": "https://github.com/sharifwebdev/laravel-ai-bridge",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sharif Uddin",
+            "email": "sharif.webpro@gmail.com",
+            "homepage": "https://sharifwebdev.github.io/",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.1|^8.2|^8.3|^8.4",
+        "illuminate/support": "^9.0|^10.0|^11.0|^12.0",
+        "illuminate/http": "^9.0|^10.0|^11.0|^12.0",
+        "illuminate/routing": "^9.0|^10.0|^11.0|^12.0",
+        "illuminate/cache": "^9.0|^10.0|^11.0|^12.0",
+        "guzzlehttp/guzzle": "^7.2"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^7.0|^8.0|^9.0|^10.0",
+        "phpunit/phpunit": "^9.5|^10.0|^11.0"
+    },
+    "suggest": {
+        "ext-pdo_pgsql": "Required for the default \"postgresql\" vector store driver, together with the pgvector Postgres extension (CREATE EXTENSION vector).",
+        "ext-pdo_mysql": "Required for the \"mysql\" vector store driver (AI_VECTOR_STORE=mysql).",
+        "mongodb/mongodb": "Required to use the \"mongodb\" vector store driver (MongoDB Atlas Vector Search).",
+        "ext-mongodb": "Required alongside mongodb/mongodb for the \"mongodb\" vector store driver."
+    },
+    "autoload": {
+        "psr-4": {
+            "Sharifuddin\\LaravelAiBridge\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sharifuddin\\LaravelAiBridge\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Sharifuddin\\LaravelAiBridge\\AiBridgeServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

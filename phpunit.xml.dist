@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    bootstrap="vendor/autoload.php"
+    colors="true"
+>
+    <testsuites>
+        <testsuite name="Laravel AiBridge Test Suite">
+            <directory suffix="Test.php">tests</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_KEY" value="base64:6Cu/ozUs8DpKDquFeVua2mS0MwatFL76ILIEHrCeSnM="/>
+        <env name="CACHE_DRIVER" value="array"/>
+        <env name="GEMINI_API_KEY" value="test-key"/>
+    </php>
+</phpunit>
