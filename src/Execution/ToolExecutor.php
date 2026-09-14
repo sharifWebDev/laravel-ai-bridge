@@ -74,7 +74,19 @@ final class ToolExecutor
             throw $e;
         } catch (\Throwable $e) {
             event(new ToolCallFailed($toolName, $e->getMessage()));
-            throw new ToolExecutionException("Execution of tool [{$toolName}] failed: " . $e->getMessage(), previous: $e);
+
+            // In debug mode, surface exactly where the failure happened
+            // inside the tool's own code - the message alone ("Call to a
+            // member function X() on null", etc.) is rarely enough to find
+            // the line, and the wrapping here would otherwise discard it.
+            $location = config('app.debug')
+                ? sprintf(' (at %s:%d)', $e->getFile(), $e->getLine())
+                : '';
+
+            throw new ToolExecutionException(
+                "Execution of tool [{$toolName}] failed: " . $e->getMessage() . $location,
+                previous: $e
+            );
         }
     }
 }

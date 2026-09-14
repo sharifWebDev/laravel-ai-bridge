@@ -90,9 +90,9 @@ class AiService implements AiProcessorInterface
      * + re-authorize + execute it securely -> return a compact, normalized
      * response.
      *
-     * @return array{status: string, message?: string, action?: string, result?: array, retrieval?: array}
+     * @return array{status: string, message?: string, action?: string, result?: array, retrieval?: array}|\Symfony\Component\HttpFoundation\Response
      */
-    public function chat(string $prompt, ?ExecutionContext $context = null): array
+    public function chat(string $prompt, ?ExecutionContext $context = null): array|\Symfony\Component\HttpFoundation\Response
     {
         $context = $context ?? ExecutionContext::fromCurrentRequest();
 
@@ -122,6 +122,13 @@ class AiService implements AiProcessorInterface
                 return ['status' => 'error', 'message' => $e->getMessage()];
             }
 
+            // File downloads (Excel/PDF/CSV exports, ...) are returned
+            // straight through - never JSON-wrapped - so the HTTP layer
+            // can stream the actual file back to the client.
+            if ($result->isBinary()) {
+                return $result->binaryResponse;
+            }
+
             return [
                 'status' => 'success',
                 'action' => $response->toolName,
@@ -133,6 +140,10 @@ class AiService implements AiProcessorInterface
         if ($topCandidate && !$retrieval->isLowConfidence && !$retrieval->isAmbiguous) {
             try {
                 $result = $this->executor->execute($topCandidate->tool->name(), [], $context);
+
+                if ($result->isBinary()) {
+                    return $result->binaryResponse;
+                }
 
                 return [
                     'status' => 'success',

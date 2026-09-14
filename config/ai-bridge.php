@@ -3,11 +3,19 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | AI Provider
+    | AI Provider (multi-agent switching)
     |--------------------------------------------------------------------------
     |
-    | Which chat/generation provider to use. "gemini" ships fully
-    | implemented; add further drivers via AiProviderManager.
+    | Which chat/generation provider to use. Switching agents is a
+    | config/env-only change - the rest of the package (retrieval,
+    | execution, tool declarations) is provider-agnostic.
+    |
+    | Built-in: "gemini" (default), "openai" / "chatgpt", "deepseek",
+    | "anthropic" / "claude".
+    |
+    | Anything else is looked up under `providers.{key}` below, so you can
+    | register any number of additional / custom AI APIs without touching
+    | package code - see the `providers` array for examples.
     |
     */
     'provider' => env('AI_BRIDGE_PROVIDER', 'gemini'),
@@ -16,6 +24,63 @@ return [
         'key' => env('GEMINI_API_KEY', ''),
         'model' => env('GEMINI_MODEL', 'gemini-3.6-flash'),
         'api_url' => env('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models'),
+    ],
+
+    'openai' => [
+        'key' => env('OPENAI_API_KEY', ''),
+        'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
+        'base_url' => env('OPENAI_API_URL', 'https://api.openai.com/v1'),
+    ],
+
+    'deepseek' => [
+        'key' => env('DEEPSEEK_API_KEY', ''),
+        'model' => env('DEEPSEEK_MODEL', 'deepseek-chat'),
+        'base_url' => env('DEEPSEEK_API_URL', 'https://api.deepseek.com'),
+    ],
+
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY', ''),
+        'model' => env('ANTHROPIC_MODEL', 'claude-sonnet-4-5'),
+        'api_url' => env('ANTHROPIC_API_URL', 'https://api.anthropic.com/v1/messages'),
+        'version' => env('ANTHROPIC_API_VERSION', '2023-06-01'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Additional / Custom AI Providers
+    |--------------------------------------------------------------------------
+    |
+    | Register any other AI API here under a driver key, then set
+    | AI_BRIDGE_PROVIDER to that key to switch to it. Two ways to add one:
+    |
+    | 1) Any OpenAI-compatible API (Groq, OpenRouter, Together AI, a local
+    |    model server such as Ollama/vLLM/LM Studio, an internal proxy,
+    |    etc.) - just point it at its base_url/key/model, no PHP needed:
+    |
+    |      'groq' => [
+    |          'base_url' => env('GROQ_API_URL', 'https://api.groq.com/openai/v1'),
+    |          'key' => env('GROQ_API_KEY', ''),
+    |          'model' => env('GROQ_MODEL', 'llama-3.3-70b-versatile'),
+    |      ],
+    |
+    | 2) A fully custom provider with its own wire format - implement
+    |    Sharifuddin\LaravelAiBridge\Contracts\AiProviderInterface and
+    |    point "class" at it; the resolved config array below is passed
+    |    to its constructor:
+    |
+    |      'my_llm' => [
+    |          'class' => \App\AiBridge\Providers\MyLlmProvider::class,
+    |          'key' => env('MY_LLM_API_KEY', ''),
+    |          'model' => env('MY_LLM_MODEL', 'my-model'),
+    |      ],
+    |
+    */
+    'providers' => [
+        // 'groq' => [
+        //     'base_url' => env('GROQ_API_URL', 'https://api.groq.com/openai/v1'),
+        //     'key' => env('GROQ_API_KEY', ''),
+        //     'model' => env('GROQ_MODEL', 'llama-3.3-70b-versatile'),
+        // ],
     ],
 
     /*

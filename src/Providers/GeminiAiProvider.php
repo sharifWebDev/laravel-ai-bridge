@@ -19,11 +19,12 @@ final class GeminiAiProvider implements AiProviderInterface
     private string $model;
     private string $apiUrl;
 
-    public function __construct()
+    /** @param array<string, mixed> $config optional explicit config (falls back to ai-bridge.gemini.* / env for backward compatibility) */
+    public function __construct(array $config = [])
     {
-        $this->apiKey = (string) (config('ai-bridge.gemini.key') ?: env('GEMINI_API_KEY') ?: config('services.gemini.key', ''));
-        $this->model = (string) config('ai-bridge.gemini.model', 'gemini-1.5-flash');
-        $this->apiUrl = (string) config('ai-bridge.gemini.api_url', 'https://generativelanguage.googleapis.com/v1beta/models');
+        $this->apiKey = (string) ($config['key'] ?? config('ai-bridge.gemini.key') ?: env('GEMINI_API_KEY') ?: config('services.gemini.key', ''));
+        $this->model = (string) ($config['model'] ?? config('ai-bridge.gemini.model', 'gemini-1.5-flash'));
+        $this->apiUrl = (string) ($config['api_url'] ?? config('ai-bridge.gemini.api_url', 'https://generativelanguage.googleapis.com/v1beta/models'));
     }
 
     public function chat(string $prompt, array $toolDeclarations = [], array $conversationContext = []): AiResponse
@@ -44,7 +45,7 @@ final class GeminiAiProvider implements AiProviderInterface
         $payload = ['contents' => $contents];
 
         if (!empty($toolDeclarations)) {
-            $payload['tools'] = [['functionDeclarations' => $toolDeclarations]];
+            $payload['tools'] = [['functionDeclarations' => $this->toGeminiDeclarations($toolDeclarations)]];
         }
 
         $endpoint = "{$this->apiUrl}/{$this->model}:generateContent?key={$this->apiKey}";
@@ -85,5 +86,56 @@ final class GeminiAiProvider implements AiProviderInterface
         }
 
         return AiResponse::text($text ?? 'No response generated.', $data);
+    }
+
+    /**
+     * Translates the package's canonical, lowercase JSON-Schema tool
+     * declarations (ToolDefinition::toDeclaration()) into Gemini's
+     * function_declarations shape, which expects uppercase OpenAPI Schema
+     * type enums (STRING/INTEGER/NUMBER/BOOLEAN/ARRAY/OBJECT).
+     *
+     * @param array<int, array<string, mixed>> $declarations
+     * @return array<int, array<string, mixed>>
+     */
+    private function toGeminiDeclarations(array $declarations): array
+    {
+        return array_map(function (array $decl) {
+            $decl['parameters'] = $this->toGeminiSchema(
+                $decl['parameters'] ?? ['type' => 'object', 'properties' => new \stdClass(), 'required' => []]
+            );
+
+            return $decl;
+        }, $declarations);
+    }
+
+    /** @param array<string, mixed> $schema */
+    private function toGeminiSchema(array $schema): array
+    {
+        $schema['type'] = strtoupper((string) ($schema['type'] ?? 'object'));
+
+        $properties = $schema['properties'] ?? [];
+        if ($properties instanceof \stdClass || empty($properties)) {
+            $schema['properties'] = new \stdClass();
+
+            return $schema;
+        }
+
+        foreach ($properties as $name => $prop) {
+            $properties[$name]['type'] = strtoupper((string) ($prop['type'] ?? 'string'));
+            unset($properties[$name]['default']); // Gemini's schema has no "default" keyword
+
+            if (($properties[$name]['type'] ?? null) === 'ARRAY') {
+                // Gemini requires 'items' on every ARRAY-type property, or
+                // it rejects the ENTIRE request (a 422 covering every tool
+                // in the call, not just this one) - default to STRING
+                // items if the canonical declaration didn't specify one.
+                $itemType = $prop['items']['type'] ?? 'string';
+                $properties[$name]['items'] = ['type' => strtoupper((string) $itemType)];
+            }
+        }
+
+        $schema['properties'] = $properties;
+
+        return $schema;
     }
 }

@@ -97,6 +97,19 @@ class SemanticToolSelector implements ToolSelectorInterface
             $seenNames[$uniqueName] = true;
 
             $properties = $tool['parameters']['properties'] ?? [];
+            if ($properties instanceof \stdClass) {
+                $properties = (array) $properties;
+            }
+
+            foreach ($properties as $propName => $prop) {
+                if (strtoupper((string) ($prop['type'] ?? '')) === 'ARRAY' && empty($prop['items'])) {
+                    // Gemini rejects the ENTIRE request (a 422 covering
+                    // every tool in the call, not just this one) if any
+                    // ARRAY-type property is missing its 'items' sub-schema.
+                    $properties[$propName]['items'] = ['type' => 'STRING'];
+                }
+            }
+
             if (empty($properties)) {
                 $properties = new \stdClass();
             }

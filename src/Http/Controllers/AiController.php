@@ -2,12 +2,11 @@
 
 namespace Sharifuddin\LaravelAiBridge\Http\Controllers;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\View\View;
 use Sharifuddin\LaravelAiBridge\Services\AiService;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class AiController extends Controller
 {
@@ -36,21 +35,17 @@ class AiController extends Controller
             'prompt' => 'required|string|max:5000',
             'export' => 'sometimes|boolean',
         ]);
-        // $request->merge(['format' => 'excel', 'export' => 'excel', 'grouped' => true]);
 
         $userPrompt = (string) $request->input('prompt');
         $aiData = $this->aiService->chat($userPrompt);
-        // $userData = app(\App\Http\Controllers\Api\UserController::class); 
-        // $aiData = $userData->index($request);
 
-        // Excel/File download response হলে সরাসরি return
-        if ($aiData instanceof BinaryFileResponse) {
+        // File downloads (Excel/PDF/CSV exports, ...) are passed straight
+        // through untouched - AiService::chat() returns the raw Response
+        // object (BinaryFileResponse, StreamedResponse, or a plain Response
+        // carrying export headers) in this case instead of an array.
+        if ($aiData instanceof SymfonyResponse) {
             return $aiData;
         }
-
-
-        // $aiData = $aiData->getData(true); 
-
         if (($aiData['status'] ?? null) === 'error') {
             $message = $aiData['message'] ?? 'An error occurred while communicating with the AI service.';
             $lower = strtolower($message);
@@ -69,7 +64,6 @@ class AiController extends Controller
             ], $status);
         }
 
-       
         return response()->json($aiData);
     }
 }
