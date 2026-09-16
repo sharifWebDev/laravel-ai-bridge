@@ -75,12 +75,45 @@ final class LegacyControllerToolAdapter implements ToolInterface
                 // Gemini (and other providers) require an 'items' sub-schema
                 // whenever type is array - default to string items when the
                 // discovery layer didn't infer a more specific element type.
-                $itemType = $this->mapLegacyType($prop['items']['type'] ?? 'STRING');
-                $schema[$name]['items'] = ['type' => $itemType];
+                $schema[$name]['items'] = $this->mapItemsSchema($prop['items'] ?? ['type' => 'STRING']);
             }
         }
 
         return $schema;
+    }
+
+    /**
+     * Maps an 'items' sub-schema for an ARRAY-type property. Handles both
+     * a plain scalar item type ({type: STRING}) and a nested OBJECT item
+     * shape ({type: OBJECT, properties: {...}, required: [...]}) - the
+     * latter is what a bulk/array-of-objects endpoint's wildcard
+     * validation rules produce (e.g. 'items.*.name' => 'required|string'),
+     * common on store_all/bulk_store/bulk_update actions.
+     *
+     * @param array<string, mixed> $items
+     * @return array<string, mixed>
+     */
+    private function mapItemsSchema(array $items): array
+    {
+        $type = $this->mapLegacyType($items['type'] ?? 'STRING');
+        $mapped = ['type' => $type];
+
+        if ($type === 'object' && !empty($items['properties']) && is_array($items['properties'])) {
+            $properties = [];
+            foreach ($items['properties'] as $propName => $propRule) {
+                $properties[$propName] = [
+                    'type' => $this->mapLegacyType($propRule['type'] ?? 'STRING'),
+                    'description' => $propRule['description'] ?? "Field: {$propName}",
+                ];
+            }
+            $mapped['properties'] = $properties;
+
+            if (!empty($items['required'])) {
+                $mapped['required'] = array_values($items['required']);
+            }
+        }
+
+        return $mapped;
     }
 
     public function permission(): ?string
@@ -300,6 +333,7 @@ final class LegacyControllerToolAdapter implements ToolInterface
             'NUMBER' => 'number',
             'BOOLEAN' => 'boolean',
             'ARRAY' => 'array',
+            'OBJECT' => 'object',
             default => 'string',
         };
     }

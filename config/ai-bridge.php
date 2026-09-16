@@ -85,6 +85,41 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Automatic Failover
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, AiProviderManager wraps the primary provider ('provider'
+    | above) together with every driver key listed in 'order' below into a
+    | single chain: if the primary hits a rate limit, a quota/billing
+    | error, an outage (5xx), a network failure, or any other error at
+    | all, the next provider in the list is tried automatically and
+    | transparently - the caller never sees which one actually answered.
+    |
+    | 'order' takes any of the built-in driver keys (gemini, openai,
+    | chatgpt, deepseek, anthropic, claude) or any custom key registered
+    | under 'providers' above. The primary provider is always tried first
+    | regardless of whether it's repeated here. A driver that fails to
+    | resolve (e.g. missing API key) is skipped with a logged warning
+    | rather than breaking the whole chain.
+    |
+    | Leave 'order' empty (the default) to keep single-provider behavior -
+    | this section is fully opt-in and changes nothing until configured.
+    |
+    | Example .env for a 3-way Gemini -> OpenAI -> DeepSeek chain:
+    |   AI_BRIDGE_PROVIDER=gemini
+    |   AI_BRIDGE_FAILOVER_ORDER=openai,deepseek
+    |
+    */
+    'failover' => [
+        'enabled' => env('AI_BRIDGE_FAILOVER_ENABLED', true),
+        'order' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('AI_BRIDGE_FAILOVER_ORDER', ''))
+        ))),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | First-Class AI Tools
     |--------------------------------------------------------------------------
     |

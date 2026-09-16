@@ -70,7 +70,7 @@ final class AnthropicAiProvider implements AiProviderInterface
             $message = $errorData['error']['message'] ?? ('Anthropic API returned HTTP ' . $response->status());
             Log::warning('[ai-bridge] Anthropic API error: ' . $message);
 
-            return AiResponse::error($message, $errorData ?: []);
+            return AiResponse::error($message, $errorData ?: [], $response->status());
         }
 
         $data = $response->json() ?: [];

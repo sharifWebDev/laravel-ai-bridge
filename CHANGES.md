@@ -238,3 +238,79 @@ root cause ১০০% নিশ্চিত।
 `rules()` দুটোই থাকা স্ট্যান্ডার্ড FormRequest, Controller+Service pattern সহ)
 সঠিকভাবে কাজ করবে।
 
+## ৭. Bulk/array-of-objects create-update endpoint (store_all, bulk_store, bulk_update)
+
+আপনার tool list-এ `packaging_controller_bulk_store`, `product_controller_store_all`,
+`raw_material_inventory_controller_bulk_store`, `packaging_controller_bulk_update`-এর
+মতো অনেকগুলো bulk endpoint আছে। এগুলো সাধারণত Laravel-এর array-of-objects validation
+pattern ব্যবহার করে:
+
+```php
+$request->validate([
+    'items' => 'required|array',
+    'items.*.name' => 'required|string',
+    'items.*.quantity' => 'required|integer',
+]);
+```
+
+আগে আমাদের analyzer `'items.*.name'`-এর মতো nested wildcard rule দেখলে ভুলভাবে
+`items`-এর type STRING করে ফেলত (আসল `array` type-কে overwrite করে) — এখন এটা ঠিকভাবে
+বোঝে যে `items` একটা **array of objects**, প্রতিটা object-এর নিজস্ব field
+(`name`, `quantity`) সহ। এই nested object shape পুরো pipeline জুড়ে (analyzer →
+CachedControllerToolProvider → LegacyControllerToolAdapter → ToolDefinition →
+GeminiAiProvider) সঠিকভাবে propagate করে, Gemini-র কাছে একটা valid
+`items: {type: OBJECT, properties: {...}, required: [...]}` schema পাঠানো
+নিশ্চিত করা হয়েছে (নাহলে আবার সেই 422 error আসত)।
+
+সাথে `Validator::make($data, [...])` এবং `validator($data, [...])` helper দিয়ে করা
+validation-ও এখন discover হয় (আগে শুধু `$request->validate()` ধরা হতো) — অর্থাৎ
+developer যেভাবেই validation লিখুন (inline validate, FormRequest, Validator::make,
+বা `$fillable` fallback), field discovery একইভাবে কাজ করবে।
+
+reflection-based test দিয়ে verify করা হয়েছে: `items.*.name`/`items.*.quantity`
+pattern থেকে সঠিক nested schema তৈরি হচ্ছে, আর আগের সব single-level pattern
+(scalar `ids.*`, magic property, accessor call) অক্ষত আছে।
+
+## ৮. Automatic AI Provider Failover (rate limit / quota / error হলে অটো-সুইচ)
+
+আপনার `.env`-এ Gemini, OpenAI, DeepSeek — তিনটারই key আছে দেখে বুঝলাম আপনি এটাই
+চাইছেন: একটা provider-এ limit শেষ হয়ে গেলে বা কোনো error আসলে, স্বয়ংক্রিয়ভাবে পরের
+provider দিয়ে চেষ্টা করবে — ব্যবহারকারী কিছুই টের পাবে না।
+
+### যা যোগ হলো
+
+- **`FailoverAiProvider`** — একটা ordered chain of provider, একে একে try করে। যেকোনো
+  provider থেকে error আসলে (rate limit 429, quota, 5xx outage, network timeout, বা
+  আপনি যেভাবে বলেছেন — "any AI provider error occurs" অনুযায়ী **যেকোনো** error-এই)
+  পরেরটায় switch করে। সব কয়টা fail করলে তবেই একটা combined error message রিটার্ন
+  করে (কোনটা কোন কারণে fail করেছে, সব কয়টাই) — silent failure হয় না।
+- **`AiProviderFailedOver` event** — প্রতিবার switch হলে fire হয় (কোন provider fail
+  করলো, কেন, পরে কোনটায় গেল) — চাইলে listen করে log/alert/metrics-এ পাঠাতে পারবেন।
+  Log-এও (warning/error level) স্বয়ংক্রিয়ভাবে লেখা হয়।
+- **`AiProviderManager::resolveWithFailover()`** — primary provider + failover
+  order মিলিয়ে পুরো chain বানায়। কোনো provider resolve করতেই ব্যর্থ হলে (যেমন key
+  missing) সেটা শুধু skip করে warning log করে, পুরো chain ভেঙে পড়ে না।
+- এটাই এখন app-wide default (`AiProviderInterface` এই দিয়েই bind করা) — কিন্তু
+  **সম্পূর্ণ opt-in**: `AI_BRIDGE_FAILOVER_ORDER` খালি রাখলে (default) আগের মতোই
+  single-provider behavior, কোনো change নেই।
+
+### Enable করতে আপনার `.env`-এ যোগ করুন
+
+```dotenv
+AI_BRIDGE_PROVIDER=gemini
+AI_BRIDGE_FAILOVER_ENABLED=true
+AI_BRIDGE_FAILOVER_ORDER=openai,deepseek
+```
+
+এতে chain হবে: **gemini → openai → deepseek** (এই ক্রমে চেষ্টা হবে)। ক্রম বদলাতে
+চাইলে শুধু `AI_BRIDGE_FAILOVER_ORDER`-এর order বদলে দিন, বা primary বদলাতে
+`AI_BRIDGE_PROVIDER` বদলান।
+
+**⚠️ নিরাপত্তা নোট:** চ্যাটে যে তিনটা API key পেস্ট করেছিলেন (Gemini/OpenAI/DeepSeek),
+সেগুলো এখন exposed ধরে নিতে হবে — সেই তিনটাই নিজ নিজ dashboard থেকে revoke/rotate করে
+নতুন key `.env`-এ বসান।
+
+reflection/stub-based টেস্ট দিয়ে ৪টা scenario verify করা হয়েছে: (১) primary
+rate-limited হলে secondary-তে switch, (২) primary network exception থ্রো করলে
+fallback, (৩) সব provider fail করলে crash না করে combined error, (৪) failover
+configured না থাকলে আগের মতোই single-provider behavior অক্ষত।

@@ -61,7 +61,7 @@ final class GeminiAiProvider implements AiProviderInterface
             $message = $errorData['error']['message'] ?? ('Gemini API returned HTTP ' . $response->status());
             Log::warning('[ai-bridge] Gemini API error: ' . $message);
 
-            return AiResponse::error($message, $errorData ?: []);
+            return AiResponse::error($message, $errorData ?: [], $response->status());
         }
 
         $data = $response->json() ?: [];
@@ -129,13 +129,53 @@ final class GeminiAiProvider implements AiProviderInterface
                 // it rejects the ENTIRE request (a 422 covering every tool
                 // in the call, not just this one) - default to STRING
                 // items if the canonical declaration didn't specify one.
-                $itemType = $prop['items']['type'] ?? 'string';
-                $properties[$name]['items'] = ['type' => strtoupper((string) $itemType)];
+                $properties[$name]['items'] = $this->toGeminiItemsSchema($prop['items'] ?? ['type' => 'string']);
             }
         }
 
         $schema['properties'] = $properties;
 
         return $schema;
+    }
+
+    /**
+     * Maps an 'items' sub-schema for an ARRAY-type property into Gemini's
+     * uppercase format. Handles both a plain scalar item type
+     * ({type: STRING}) and a nested OBJECT item shape
+     * ({type: OBJECT, properties: {...}, required: [...]}) - the latter
+     * comes from a bulk/array-of-objects endpoint's wildcard validation
+     * rules (e.g. 'items.*.name' => 'required|string'), common on
+     * store_all/bulk_store/bulk_update actions.
+     *
+     * @param array<string, mixed> $items
+     * @return array<string, mixed>
+     */
+    private function toGeminiItemsSchema(array $items): array
+    {
+        $type = strtoupper((string) ($items['type'] ?? 'string'));
+        $mapped = ['type' => $type];
+
+        if ($type !== 'OBJECT') {
+            return $mapped;
+        }
+
+        $properties = $items['properties'] ?? [];
+        if (empty($properties) || !is_array($properties)) {
+            $mapped['properties'] = new \stdClass();
+
+            return $mapped;
+        }
+
+        foreach ($properties as $propName => $propRule) {
+            $properties[$propName]['type'] = strtoupper((string) ($propRule['type'] ?? 'string'));
+        }
+
+        $mapped['properties'] = $properties;
+
+        if (!empty($items['required'])) {
+            $mapped['required'] = array_values($items['required']);
+        }
+
+        return $mapped;
     }
 }

@@ -62,7 +62,7 @@ class AiBridgeServiceProvider extends ServiceProvider
 
         $this->app->singleton(EmbeddingProviderInterface::class, fn () => EmbeddingManager::resolve());
         $this->app->singleton(VectorStoreInterface::class, fn () => VectorStoreManager::resolve());
-        $this->app->singleton(AiProviderInterface::class, fn () => AiProviderManager::resolve());
+        $this->app->singleton(AiProviderInterface::class, fn () => AiProviderManager::resolveWithFailover());
 
         $this->app->bindIf(TenantContextResolverInterface::class, NullTenantContextResolver::class);
 

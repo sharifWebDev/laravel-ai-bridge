@@ -78,8 +78,7 @@ final class ToolDefinition
                 // tool in the call, not just this one), so default to
                 // string items when a more specific element type wasn't
                 // discovered upstream.
-                $itemType = $this->mapType($rule['items']['type'] ?? 'string');
-                $properties[$paramName]['items'] = ['type' => $itemType];
+                $properties[$paramName]['items'] = $this->mapItemsSchema($rule['items'] ?? ['type' => 'string']);
             }
 
             if (!empty($rule['enum'])) {
@@ -113,7 +112,42 @@ final class ToolDefinition
             'number', 'float', 'double' => 'number',
             'boolean', 'bool' => 'boolean',
             'array' => 'array',
+            'object' => 'object',
             default => 'string',
         };
+    }
+
+    /**
+     * Maps an 'items' sub-schema for an ARRAY-type property. Handles both
+     * a plain scalar item type ({type: string}) and a nested OBJECT item
+     * shape ({type: object, properties: {...}, required: [...]}) - the
+     * latter is what a bulk/array-of-objects endpoint's wildcard
+     * validation rules produce (e.g. 'items.*.name' => 'required|string'),
+     * common on store_all/bulk_store/bulk_update actions.
+     *
+     * @param array<string, mixed> $items
+     * @return array<string, mixed>
+     */
+    private function mapItemsSchema(array $items): array
+    {
+        $type = $this->mapType($items['type'] ?? 'string');
+        $mapped = ['type' => $type];
+
+        if ($type === 'object' && !empty($items['properties']) && is_array($items['properties'])) {
+            $properties = [];
+            foreach ($items['properties'] as $name => $rule) {
+                $properties[$name] = [
+                    'type' => $this->mapType($rule['type'] ?? 'string'),
+                    'description' => $rule['description'] ?? "Field: {$name}",
+                ];
+            }
+            $mapped['properties'] = $properties;
+
+            if (!empty($items['required'])) {
+                $mapped['required'] = array_values($items['required']);
+            }
+        }
+
+        return $mapped;
     }
 }

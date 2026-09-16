@@ -99,7 +99,7 @@ final class OpenAiCompatibleProvider implements AiProviderInterface
             $message = $errorData['error']['message'] ?? ("[{$this->label}] API returned HTTP " . $response->status());
             Log::warning("[ai-bridge] {$this->label} API error: " . $message);
 
-            return AiResponse::error($message, $errorData ?: []);
+            return AiResponse::error($message, $errorData ?: [], $response->status());
         }
 
         $data = $response->json() ?: [];

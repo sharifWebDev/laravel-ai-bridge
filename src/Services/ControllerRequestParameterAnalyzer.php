@@ -260,25 +260,33 @@ final class ControllerRequestParameterAnalyzer
     }
 
     /**
-     * Matches `$request->validate([...])` calls in the controller method's
-     * own body.
+     * Matches `$request->validate([...])`, `Validator::make(..., [...])`,
+     * and the `validator(..., [...])` helper - three different ways the
+     * same controller method might trigger validation. All three end up
+     * with a rules array as one of the call's arguments, so the same
+     * "grab the balanced parens content and pattern-match key => rule
+     * pairs anywhere inside it" approach in parseRuleAssignments() works
+     * for all of them without needing to know which argument position the
+     * rules array is actually in.
      *
      * @param array<string, array<string, mixed>> $discovered
      */
     private function discoverValidateRules(string $source, string $requestVar, array &$discovered): void
     {
-        $offset = 0;
-        while (preg_match('/->validate\(/', $source, $m, PREG_OFFSET_CAPTURE, $offset)) {
-            $callStart = $m[0][1] + strlen($m[0][0]);
-            $block = $this->extractBalanced($source, $callStart - 1, '(', ')');
-            $offset = $callStart;
+        foreach (['->validate\(', 'Validator::make\(', '(?<![:>a-zA-Z_])validator\('] as $trigger) {
+            $offset = 0;
+            while (preg_match('/' . $trigger . '/', $source, $m, PREG_OFFSET_CAPTURE, $offset)) {
+                $callStart = $m[0][1] + strlen($m[0][0]);
+                $block = $this->extractBalanced($source, $callStart - 1, '(', ')');
+                $offset = $callStart;
 
-            if ($block === null) {
-                continue;
-            }
+                if ($block === null) {
+                    continue;
+                }
 
-            foreach ($this->parseRuleAssignments($block) as $name => $entry) {
-                $discovered[$name] = $entry;
+                foreach ($this->parseRuleAssignments($block) as $name => $entry) {
+                    $discovered[$name] = $entry;
+                }
             }
         }
     }
@@ -411,6 +419,7 @@ final class ControllerRequestParameterAnalyzer
     {
         $result = [];
         $itemTypes = [];
+        $itemObjectFields = [];
 
         preg_match_all(
             '/[\'"]([a-zA-Z0-9_.\*]+)[\'"]\s*=>\s*(\[[^\[\]]*\]|[\'"][^\'"]*[\'"])/',
@@ -423,6 +432,23 @@ final class ControllerRequestParameterAnalyzer
             $rawName = $ruleMatch[1];
             $rulesText = strtolower($ruleMatch[2]);
             $ruleType = $this->typeFromRuleText($rulesText);
+
+            // e.g. 'items.*.name' => 'required|string' - a BULK/array-of-
+            // objects endpoint (store_all, bulk_store, bulk_update, ...):
+            // each item of 'items' is an OBJECT with its own 'name' field,
+            // not a scalar. This is a distinct, more specific case than the
+            // plain 'ids.*' => 'integer' wildcard below and must be checked
+            // first, since 'items.*.name' would otherwise also match "ends
+            // with .*"-style patterns if checked in the wrong order.
+            if (preg_match('/^(.+?)\.\*\.(.+)$/', $rawName, $nestedMatch) && !str_contains($nestedMatch[2], '.*')) {
+                $subRequired = str_contains($rulesText, 'required') && !str_contains($rulesText, 'required_if') && !str_contains($rulesText, 'required_with');
+                $itemObjectFields[$nestedMatch[1]][$nestedMatch[2]] = [
+                    'type' => $ruleType,
+                    'description' => $this->describeParameter($nestedMatch[2], $ruleType),
+                    'required' => $subRequired,
+                ];
+                continue;
+            }
 
             if (preg_match('/^(.+)\.\*$/', $rawName, $wildcardMatch)) {
                 // e.g. 'ids.*' => 'integer' - describes each ITEM of the
@@ -465,6 +491,42 @@ final class ControllerRequestParameterAnalyzer
                 $result[$name]['type'] = 'ARRAY';
                 $result[$name]['items'] = ['type' => $itemType];
             }
+        }
+
+        // Nested object-array wildcards ('items.*.name', 'items.*.qty', ...)
+        // take final precedence - they describe the array's item SHAPE in
+        // full, which is strictly more useful to the AI than a bare scalar
+        // items type, so they override whatever the plain-wildcard pass
+        // above may have set for the same field.
+        foreach ($itemObjectFields as $name => $fields) {
+            $properties = [];
+            $required = [];
+
+            foreach ($fields as $subField => $subEntry) {
+                $properties[$subField] = [
+                    'type' => $subEntry['type'],
+                    'description' => $subEntry['description'],
+                ];
+
+                if ($subEntry['required']) {
+                    $required[] = $subField;
+                }
+            }
+
+            if (!isset($result[$name])) {
+                $result[$name] = [
+                    'type' => 'ARRAY',
+                    'description' => $this->describeParameter($name, 'ARRAY'),
+                ];
+            } else {
+                $result[$name]['type'] = 'ARRAY';
+            }
+
+            $result[$name]['items'] = [
+                'type' => 'OBJECT',
+                'properties' => $properties,
+                'required' => $required,
+            ];
         }
 
         return $result;

@@ -22,13 +22,80 @@ use Sharifuddin\LaravelAiBridge\Contracts\AiProviderInterface;
  *   - otherwise it's treated as a generic OpenAI-compatible API (Groq,
  *     OpenRouter, Together, a local/self-hosted model, or literally any
  *     other "custom AI api") as long as it exposes base_url/key/model.
+ *
+ * Automatic failover: when config('ai-bridge.failover.enabled') is true
+ * and config('ai-bridge.failover.order') lists one or more additional
+ * driver keys, resolveWithFailover() wraps the primary provider above
+ * plus every reachable fallback driver in a FailoverAiProvider, which
+ * transparently tries them in order and moves to the next one whenever
+ * the current one hits a rate limit, quota error, outage, or any other
+ * failure - see FailoverAiProvider for the exact policy. This is what
+ * the service provider binds AiProviderInterface to, so failover is
+ * active app-wide with zero code changes once configured; with no
+ * fallback order configured, it behaves exactly like resolve() alone.
  */
 final class AiProviderManager
 {
     public static function resolve(): AiProviderInterface
     {
-        $driver = strtolower((string) config('ai-bridge.provider', 'gemini'));
+        return self::resolveDriver(strtolower((string) config('ai-bridge.provider', 'gemini')));
+    }
 
+    /**
+     * Builds the full auto-failover chain: the primary provider first,
+     * then every driver listed in ai-bridge.failover.order (skipping the
+     * primary if it's listed again, and skipping - with a logged warning,
+     * never a hard crash - any driver that fails to resolve, e.g. because
+     * it's missing required config). Falls back to a single, non-wrapped
+     * provider when failover is disabled or no fallback order is set, so
+     * this is always safe to bind unconditionally.
+     */
+    public static function resolveWithFailover(): AiProviderInterface
+    {
+        $primaryDriver = strtolower((string) config('ai-bridge.provider', 'gemini'));
+
+        if (!config('ai-bridge.failover.enabled', true)) {
+            return self::resolveDriver($primaryDriver);
+        }
+
+        $order = (array) config('ai-bridge.failover.order', []);
+        $driverKeys = array_values(array_unique(array_map(
+            fn ($d) => strtolower(trim((string) $d)),
+            array_merge([$primaryDriver], array_filter($order))
+        )));
+
+        $chain = [];
+        foreach ($driverKeys as $driver) {
+            try {
+                $chain[] = ['label' => $driver, 'provider' => self::resolveDriver($driver)];
+            } catch (\Throwable $e) {
+                if (function_exists('logger')) {
+                    logger()->warning("[ai-bridge] Skipping unresolvable failover provider [{$driver}]: " . $e->getMessage());
+                }
+            }
+        }
+
+        if (empty($chain)) {
+            // Every configured driver (including the primary) failed to
+            // resolve - surface the primary's own resolution error rather
+            // than silently returning nothing usable.
+            return self::resolveDriver($primaryDriver);
+        }
+
+        if (count($chain) === 1) {
+            return $chain[0]['provider'];
+        }
+
+        return new FailoverAiProvider($chain);
+    }
+
+    /**
+     * Resolves a single named driver - the shared implementation behind
+     * both resolve() and resolveWithFailover(), so adding a new built-in
+     * provider only ever needs to change this one match.
+     */
+    private static function resolveDriver(string $driver): AiProviderInterface
+    {
         return match ($driver) {
             'gemini' => new GeminiAiProvider(),
             'openai', 'chatgpt', 'gpt' => new OpenAiCompatibleProvider(

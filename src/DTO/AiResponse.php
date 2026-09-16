@@ -16,6 +16,7 @@ final class AiResponse
         public readonly ?string $toolName,
         public readonly array $toolArguments,
         public readonly array $raw,
+        public readonly ?int $statusCode = null,
     ) {
     }
 
@@ -30,9 +31,17 @@ final class AiResponse
         return new self('tool_call', null, $toolName, $arguments, $raw);
     }
 
-    public static function error(string $message, array $raw = []): self
+    /**
+     * @param int|null $statusCode the HTTP status returned by the provider, when known -
+     *        used by FailoverAiProvider to decide whether trying the next configured
+     *        provider is worthwhile (e.g. a 429 rate limit is; a malformed-request 400
+     *        caused by our own schema would just fail identically everywhere, though
+     *        by default FailoverAiProvider still moves on regardless, per the "switch
+     *        on ANY provider error" behavior this package defaults to).
+     */
+    public static function error(string $message, array $raw = [], ?int $statusCode = null): self
     {
-        return new self('error', $message, null, [], $raw);
+        return new self('error', $message, null, [], $raw, $statusCode);
     }
 
     public function isToolCall(): bool
@@ -43,5 +52,28 @@ final class AiResponse
     public function isError(): bool
     {
         return $this->type === 'error';
+    }
+
+    /**
+     * True when the failure looks transient/provider-side (rate limit,
+     * quota, overloaded, or any 5xx) rather than a client-side mistake -
+     * informational only; FailoverAiProvider's default policy is to move
+     * to the next provider on ANY error, not just retryable ones.
+     */
+    public function isRetryable(): bool
+    {
+        if ($this->statusCode === 429 || ($this->statusCode !== null && $this->statusCode >= 500)) {
+            return true;
+        }
+
+        $needle = strtolower((string) $this->text);
+
+        foreach (['rate limit', 'quota', 'overloaded', 'resource_exhausted', 'too many requests', 'unavailable'] as $marker) {
+            if (str_contains($needle, $marker)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -60,6 +60,7 @@ class AiService implements AiProcessorInterface
      */
     public function processPrompt(string $userPrompt): array
     {
+
         $legacyProvider = app(\Sharifuddin\LaravelAiBridge\Providers\GeminiAiProvider::class);
 
         $allTools = $this->legacyToolProvider->getTools();

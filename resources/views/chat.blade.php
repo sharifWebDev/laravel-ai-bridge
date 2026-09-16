@@ -1,424 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Bridge · Pro</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
     <style>
-        /* ====== THEME VARIABLES ====== */
-        :root {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f1f5f9;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --border-color: #e2e8f0;
-            --border-strong: #cbd5e1;
-            --bubble-ai-bg: #ffffff;
-            --bubble-ai-border: #e2e8f0;
-            --bubble-user-bg: #4f46e5;
-            --bubble-user-text: #ffffff;
-            --accent: #4f46e5;
-            --accent-hover: #4338ca;
-            --accent-light: #eef2ff;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            --header-bg: rgba(255, 255, 255, 0.85);
-            --footer-bg: rgba(255, 255, 255, 0.9);
-            --glass-blur: blur(16px);
-            --table-header-bg: #f8fafc;
-            --table-header-text: #334155;
-            --table-row-hover: #f1f5f9;
-            --table-border: #e2e8f0;
-            --table-nested-bg: #f8fafc;
-            --modal-overlay: rgba(15, 23, 42, 0.4);
-            --action-hover-bg: #f1f5f9;
-            --input-bg: #ffffff;
-            --input-border: #cbd5e1;
-            --input-focus-ring: rgba(79, 70, 229, 0.15);
-            --toggle-bg: #e2e8f0;
-            --toggle-active: #4f46e5;
-            --badge-bg: #eef2ff;
-            --badge-text: #4338ca;
-            --badge-border: #c7d2fe;
-            --file-bg: #f8fafc;
-            --file-border: #e2e8f0;
-            --success-bg: #ecfdf5;
-            --success-border: #a7f3d0;
-            --success-text: #065f46;
-            --error-bg: #fef2f2;
-            --error-border: #fecaca;
-            --error-text: #991b1b;
-            --pagination-bg: #f8fafc;
-            --pagination-border: #e2e8f0;
-            --pagination-text: #475569;
-            --pagination-active-bg: #4f46e5;
-            --pagination-active-text: #ffffff;
-        }
-
-        html.dark {
-            --bg-primary: #0b1120;
-            --bg-secondary: #0f172a;
-            --bg-tertiary: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border-color: #1e293b;
-            --border-strong: #334155;
-            --bubble-ai-bg: #1e293b;
-            --bubble-ai-border: #334155;
-            --bubble-user-bg: #4f46e5;
-            --bubble-user-text: #ffffff;
-            --accent: #6366f1;
-            --accent-hover: #818cf8;
-            --accent-light: #1e1b4b;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.6);
-            --header-bg: rgba(15, 23, 42, 0.85);
-            --footer-bg: rgba(15, 23, 42, 0.9);
-            --table-header-bg: #0f172a;
-            --table-header-text: #cbd5e1;
-            --table-row-hover: #1e293b;
-            --table-border: #1e293b;
-            --table-nested-bg: #0b1120;
-            --modal-overlay: rgba(0, 0, 0, 0.7);
-            --action-hover-bg: #1e293b;
-            --input-bg: #0f172a;
-            --input-border: #334155;
-            --input-focus-ring: rgba(99, 102, 241, 0.2);
-            --toggle-bg: #334155;
-            --toggle-active: #6366f1;
-            --badge-bg: #1e1b4b;
-            --badge-text: #a5b4fc;
-            --badge-border: #312e81;
-            --file-bg: #0b1120;
-            --file-border: #1e293b;
-            --success-bg: #022c22;
-            --success-border: #065f46;
-            --success-text: #6ee7b7;
-            --error-bg: #450a0a;
-            --error-border: #7f1d1d;
-            --error-text: #fca5a5;
-            --pagination-bg: #0f172a;
-            --pagination-border: #1e293b;
-            --pagination-text: #94a3b8;
-            --pagination-active-bg: #6366f1;
-            --pagination-active-text: #ffffff;
-        }
-
-        * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease; }
-
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 8px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.7); }
+        ::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.35); border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.6); }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.35); }
+        .dark ::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.6); }
 
-        body {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+        .fade-in { animation: fadeIn 0.3s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        .page { display: none; min-height: 100vh; flex-direction: column; }
-        .page.active { display: flex; }
-
-        .glass-panel { background: var(--header-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
-        .glass-footer { background: var(--footer-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
-
-        .bubble-ai { background: var(--bubble-ai-bg); border: 1px solid var(--bubble-ai-border); color: var(--text-primary); }
-        .bubble-user { background: var(--bubble-user-bg); color: var(--bubble-user-text); }
-        .bubble-error { background: var(--error-bg); border: 1px solid var(--error-border); color: var(--error-text); }
-
-        /* ====== TABLE STYLES ====== */
-        .table-responsive {
-            overflow-x: auto;
-            border-radius: 14px;
-            border: 1px solid var(--table-border);
-            box-shadow: var(--shadow-sm);
-            margin: 12px 0;
-            background: var(--bg-secondary);
-        }
-        .table-responsive table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-        .table-responsive thead th {
-            background: var(--table-header-bg);
-            color: var(--table-header-text);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            font-size: 0.68rem;
-            padding: 11px 14px;
-            white-space: nowrap;
-            border-bottom: 1px solid var(--table-border);
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
-        .table-responsive tbody td {
-            padding: 10px 14px;
-            border-bottom: 1px solid var(--table-border);
-            color: var(--text-primary);
-            vertical-align: top;
-            font-size: 0.82rem;
-            line-height: 1.5;
-        }
-        .table-responsive tbody tr:last-child td { border-bottom: none; }
-        .table-responsive tbody tr:hover td { background: var(--table-row-hover); }
-        .table-responsive tbody tr:nth-child(even) { background: var(--table-nested-bg); }
-
-        .table-responsive .table-responsive {
-            margin: 6px 0;
-            border-radius: 10px;
-            box-shadow: none;
-            border: 1px solid var(--table-border);
-            background: var(--bg-tertiary);
-        }
-        .table-responsive .table-responsive thead th { background: var(--bg-tertiary); font-size: 0.62rem; padding: 7px 10px; }
-        .table-responsive .table-responsive tbody td { padding: 7px 10px; font-size: 0.78rem; }
-
-        .nested-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.6rem;
-            background: var(--badge-bg);
-            color: var(--badge-text);
-            border: 1px solid var(--badge-border);
-            padding: 1px 8px;
-            border-radius: 99px;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            margin-bottom: 4px;
-        }
-
-        /* ====== PAGINATION ====== */
-        .pagination-container {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 14px;
-            padding: 12px 16px;
-            background: var(--pagination-bg);
-            border: 1px solid var(--pagination-border);
-            border-radius: 12px;
-            font-size: 0.78rem;
-            color: var(--pagination-text);
-        }
-        .pagination-info { font-weight: 500; }
-        .pagination-controls { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-        .pagination-btn {
-            min-width: 32px;
-            height: 32px;
-            padding: 0 8px;
-            border-radius: 8px;
-            border: 1px solid var(--pagination-border);
-            background: var(--bg-secondary);
-            color: var(--pagination-text);
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s;
-        }
-        .pagination-btn:hover:not(:disabled) { background: var(--action-hover-bg); border-color: var(--accent); color: var(--accent); }
-        .pagination-btn.active { background: var(--pagination-active-bg); color: var(--pagination-active-text); border-color: var(--pagination-active-bg); }
-        .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .pagination-ellipsis { padding: 0 4px; color: var(--text-muted); }
-
-        /* ====== MESSAGE ACTIONS ====== */
-        .message-actions { opacity: 0; transition: opacity 0.15s ease; }
-        .message-wrapper:hover .message-actions { opacity: 1; }
-
-        .copy-feedback { background: var(--success-bg) !important; border-color: var(--success-border) !important; color: var(--success-text) !important; }
-
-        /* ====== TOGGLE SWITCH ====== */
-        .theme-toggle {
-            position: relative;
-            width: 52px;
-            height: 28px;
-            background: var(--toggle-bg);
-            border-radius: 99px;
-            cursor: pointer;
-            border: none;
-            padding: 0;
-            transition: background 0.3s ease;
-            flex-shrink: 0;
-        }
-        .theme-toggle .toggle-knob {
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 22px;
-            height: 22px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-        }
-        html.dark .theme-toggle { background: var(--toggle-active); }
-        html.dark .theme-toggle .toggle-knob { transform: translateX(24px); background: #0f172a; }
-
-        /* ====== INPUT ====== */
-        .chat-input { background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-primary); transition: border-color 0.2s, box-shadow 0.2s; }
-        .chat-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--input-focus-ring); }
-        .chat-input textarea { background: transparent; color: var(--text-primary); }
-        .chat-input textarea::placeholder { color: var(--text-muted); }
-
-        /* ====== MODAL ====== */
-        .modal-overlay { background: var(--modal-overlay); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-        .modal-panel { background: var(--bg-secondary); border: 1px solid var(--border-color); box-shadow: var(--shadow-xl); }
-
-        .file-card { background: var(--file-bg); border: 1px solid var(--file-border); }
-
-        .typing-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; display: inline-block; animation: typingBounce 1.2s infinite ease-in-out; }
+        .typing-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; animation: typingBounce 1.2s infinite ease-in-out; }
         .typing-dot:nth-child(2) { animation-delay: 0.15s; }
         .typing-dot:nth-child(3) { animation-delay: 0.3s; }
-        @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-6px); opacity: 1; } }
+        @keyframes typingBounce { 0%,60%,100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-5px); opacity: 1; } }
 
-        .fade-in { animation: fadeIn 0.35s ease forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .msg-actions { opacity: 0; transition: opacity 0.15s; }
+        .msg-wrapper:hover .msg-actions { opacity: 1; }
 
-        .hero-gradient { background: linear-gradient(135deg, var(--accent-light) 0%, var(--bg-primary) 50%, var(--bg-tertiary) 100%); }
-        html.dark .hero-gradient { background: linear-gradient(135deg, #1e1b4b 0%, #0b1120 50%, #0f172a 100%); }
+        .pin-actions { opacity: 0; transition: opacity 0.15s; }
+        .pin-item:hover .pin-actions { opacity: 1; }
 
-        @media (max-width: 640px) {
-            .table-responsive table { font-size: 0.72rem; }
-            .table-responsive thead th { padding: 8px 10px; font-size: 0.6rem; }
-            .table-responsive tbody td { padding: 8px 10px; font-size: 0.72rem; }
-            .table-responsive .table-responsive table { font-size: 0.65rem; }
-            .pagination-container { flex-direction: column; align-items: flex-start; }
+        .json-key { color: #7c3aed; }
+        .dark .json-key { color: #a78bfa; }
+        .json-string { color: #059669; }
+        .dark .json-string { color: #6ee7b7; }
+        .json-number { color: #d97706; }
+        .dark .json-number { color: #fbbf24; }
+        .json-boolean { color: #dc2626; }
+        .dark .json-boolean { color: #f87171; }
+        .json-null { color: #94a3b8; }
+
+        #pin-sidebar { transition: transform 0.3s ease, opacity 0.3s ease; }
+        @media (max-width: 767px) {
+            #pin-sidebar {
+                position: fixed; top: 0; left: 0; bottom: 0;
+                z-index: 40; width: 280px;
+                transform: translateX(-100%);
+            }
+            #pin-sidebar.open { transform: translateX(0); }
         }
-
-        .btn-primary { background: var(--accent); color: white; transition: background 0.2s, transform 0.1s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3); }
-        .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4); transform: translateY(-1px); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-        .btn-ghost { color: var(--text-secondary); transition: background 0.15s, color 0.15s; }
-        .btn-ghost:hover { background: var(--action-hover-bg); color: var(--text-primary); }
-
-        .stat-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-
-        .json-pre {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 12px;
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
-            font-size: 0.72rem;
-            line-height: 1.6;
-            overflow-x: auto;
-            color: var(--text-primary);
-            white-space: pre-wrap;
-            word-break: break-word;
+        @media (min-width: 768px) {
+            #pin-sidebar { position: static; transform: none !important; }
+            #pin-overlay { display: none !important; }
+            #mobile-pin-toggle { display: none !important; }
         }
-        .json-pre .json-key { color: #7c3aed; }
-        html.dark .json-pre .json-key { color: #a78bfa; }
-        .json-pre .json-string { color: #059669; }
-        html.dark .json-pre .json-string { color: #6ee7b7; }
-        .json-pre .json-number { color: #d97706; }
-        html.dark .json-pre .json-number { color: #fbbf24; }
-        .json-pre .json-boolean { color: #dc2626; }
-        html.dark .json-pre .json-boolean { color: #f87171; }
-        .json-pre .json-null { color: var(--text-muted); }
-
-        /* ====== BINARY FILE PREVIEW CARD ====== */
-        .binary-file-card {
-            background: var(--file-bg);
-            border: 1px solid var(--file-border);
-            border-radius: 14px;
-            padding: 16px;
-            margin: 10px 0;
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 14px;
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .binary-file-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-        .binary-file-icon {
-            width: 48px; height: 48px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px; flex-shrink: 0; box-shadow: var(--shadow-sm);
-        }
-        .binary-file-icon.pdf { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #991b1b; }
-        .binary-file-icon.excel { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #166534; }
-        .binary-file-icon.word { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af; }
-        .binary-file-icon.zip { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; }
-        .binary-file-icon.generic { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #3730a3; }
-        html.dark .binary-file-icon.pdf { background: linear-gradient(135deg, #450a0a, #7f1d1d); color: #fca5a5; }
-        html.dark .binary-file-icon.excel { background: linear-gradient(135deg, #052e16, #065f46); color: #6ee7b7; }
-        html.dark .binary-file-icon.word { background: linear-gradient(135deg, #172554, #1e3a8a); color: #93c5fd; }
-        html.dark .binary-file-icon.zip { background: linear-gradient(135deg, #451a03, #78350f); color: #fcd34d; }
-        html.dark .binary-file-icon.generic { background: linear-gradient(135deg, #1e1b4b, #312e81); color: #a5b4fc; }
-        .binary-file-info { flex: 1; min-width: 0; }
-        .binary-file-name { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .binary-file-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .binary-file-meta .size-badge {
-            background: var(--badge-bg); color: var(--badge-text);
-            border: 1px solid var(--badge-border);
-            padding: 1px 8px; border-radius: 99px;
-            font-size: 0.6rem; font-weight: 600;
-        }
-        .binary-file-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-        /* ============================================================
-           CLEAN SCROLLBAR — chat container only
-           ============================================================ */
-        #chat-container::-webkit-scrollbar { width: 6px; height: 6px; }
-        #chat-container::-webkit-scrollbar-track { background: transparent; border: none; }
-        #chat-container::-webkit-scrollbar-thumb {
-            background: rgba(100, 116, 139, 0.35);
-            border-radius: 99px; border: none;
-        }
-        #chat-container::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.65); }
-        #chat-container::-webkit-scrollbar-corner { background: transparent; }
-        #chat-container { scrollbar-width: thin; scrollbar-color: rgba(100, 116, 139, 0.35) transparent; }
-        html.dark #chat-container::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); }
-        html.dark #chat-container::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.7); }
-        html.dark #chat-container { scrollbar-color: rgba(148, 163, 184, 0.4) transparent; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
 
 <!-- ============================================================ -->
-<!-- PAGE 1: HOME / LANDING                                        -->
+<!-- PAGE: HOME                                                    -->
 <!-- ============================================================ -->
-<div id="page-home" class="page active">
-    <header class="glass-panel border-b sticky top-0 z-20" style="border-color: var(--border-color);">
+<div id="page-home" class="page flex flex-col min-h-screen">
+    <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800 sticky top-0 z-20 transition-colors">
         <div class="max-w-6xl mx-auto px-4 md:px-6 py-3.5 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_#34d399] bg-emerald-400"></div>
-                <h1 class="text-base md:text-lg font-semibold tracking-tight" style="color: var(--text-primary);">
-                    AI Bridge <span style="color: var(--accent);" class="font-light">Assistant</span>
+                <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></div>
+                <h1 class="text-base md:text-lg font-semibold tracking-tight text-slate-900 dark:text-white">
+                    AI Bridge <span class="text-indigo-600 dark:text-indigo-400 font-light">Assistant</span>
                 </h1>
-                <span class="hidden sm:inline text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-medium"
-                      style="background: var(--badge-bg); color: var(--badge-text); border: 1px solid var(--badge-border);">Pro</span>
+                <span class="hidden sm:inline text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-medium bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50">Pro</span>
             </div>
             <div class="flex items-center gap-3">
-                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
-                    <span class="toggle-knob" id="theme-knob">☀️</span>
+                <button data-action="toggle-theme" class="relative w-[52px] h-7 rounded-full bg-slate-200 dark:bg-indigo-600 transition-colors duration-300 focus:outline-none" title="Toggle theme">
+                    <span id="theme-knob" class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white dark:bg-slate-900 shadow flex items-center justify-center text-[10px] transition-transform duration-300 dark:translate-x-[24px]">☀️</span>
                 </button>
-                <button onclick="showPage('chat')" class="btn-primary text-xs font-semibold px-4 py-2 rounded-xl hidden sm:inline-flex items-center gap-1.5">
+                <button data-action="show-page" data-page="chat" class="hidden sm:inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition-all">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                     Open Chat
                 </button>
@@ -426,94 +93,80 @@
         </div>
     </header>
 
-    <main class="flex-1 hero-gradient flex items-center justify-center p-6">
+    <main class="flex-1 bg-gradient-to-br from-indigo-50 via-white to-slate-100 dark:from-indigo-950 dark:via-slate-950 dark:to-slate-900 flex items-center justify-center p-6 transition-colors">
         <div class="max-w-3xl w-full text-center space-y-8 fade-in">
             <div class="flex justify-center">
-                <div class="w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl"
-                     style="background: linear-gradient(135deg, var(--accent), #7c3aed); box-shadow: 0 20px 40px -10px rgba(79,70,229,0.4);">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
+                <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-indigo-500/30">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 </div>
             </div>
-
             <div class="space-y-4">
-                <h2 class="text-4xl md:text-5xl font-bold tracking-tight" style="color: var(--text-primary);">
-                    AI Bridge <span style="color: var(--accent);">Assistant</span>
-                </h2>
-                <p class="text-lg md:text-xl max-w-xl mx-auto leading-relaxed" style="color: var(--text-secondary);">
-                    Intelligent JSON mapping with N-th level recursive table rendering, pagination awareness, and full export capabilities.
-                </p>
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-white">AI Bridge <span class="text-indigo-600 dark:text-indigo-400">Assistant</span></h2>
+                <p class="text-lg md:text-xl max-w-xl mx-auto leading-relaxed text-slate-500 dark:text-slate-400">Intelligent JSON mapping with N-th level recursive table rendering, pagination awareness, and full export capabilities.</p>
             </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto pt-4">
-                <div class="stat-card p-5 text-left">
-                    <div class="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style="background: var(--accent-light); color: var(--accent);">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left shadow-sm hover:shadow-md transition-all">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center mb-3 text-indigo-600 dark:text-indigo-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
                     </div>
-                    <h3 class="font-semibold text-sm mb-1" style="color: var(--text-primary);">Recursive Tables</h3>
-                    <p class="text-xs leading-relaxed" style="color: var(--text-muted);">N-th level JSON rendering with nested tables and inline pagination.</p>
+                    <h3 class="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-1">Recursive Tables</h3>
+                    <p class="text-xs leading-relaxed text-slate-400 dark:text-slate-500">N-th level JSON rendering with nested tables and inline pagination.</p>
                 </div>
-                <div class="stat-card p-5 text-left">
-                    <div class="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style="background: var(--accent-light); color: var(--accent);">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left shadow-sm hover:shadow-md transition-all">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center mb-3 text-indigo-600 dark:text-indigo-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     </div>
-                    <h3 class="font-semibold text-sm mb-1" style="color: var(--text-primary);">Binary Files</h3>
-                    <p class="text-xs leading-relaxed" style="color: var(--text-muted);">PDF, Excel, Word, ZIP — preview and download directly.</p>
+                    <h3 class="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-1">Binary Files</h3>
+                    <p class="text-xs leading-relaxed text-slate-400 dark:text-slate-500">PDF, Excel, Word, ZIP — preview and download directly.</p>
                 </div>
-                <div class="stat-card p-5 text-left">
-                    <div class="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style="background: var(--accent-light); color: var(--accent);">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left shadow-sm hover:shadow-md transition-all">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center mb-3 text-indigo-600 dark:text-indigo-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
                     </div>
-                    <h3 class="font-semibold text-sm mb-1" style="color: var(--text-primary);">Smart Pagination</h3>
-                    <p class="text-xs leading-relaxed" style="color: var(--text-muted);">Detects meta pagination and renders full navigation controls.</p>
+                    <h3 class="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-1">Smart Pagination</h3>
+                    <p class="text-xs leading-relaxed text-slate-400 dark:text-slate-500">Detects meta pagination and renders full navigation controls.</p>
                 </div>
             </div>
-
             <div class="pt-2">
-                <button onclick="showPage('chat')" class="btn-primary text-sm font-semibold px-8 py-3.5 rounded-2xl inline-flex items-center gap-2">
+                <button data-action="show-page" data-page="chat" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-8 py-3.5 rounded-2xl shadow-lg shadow-indigo-500/30 transition-all hover:-translate-y-0.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                     Start Conversation
                 </button>
             </div>
         </div>
     </main>
-
-    <footer class="py-4 text-center text-[11px] tracking-wider" style="color: var(--text-muted);">
-        AI BRIDGE · POWERED BY LARAVEL & GEMINI
-    </footer>
+    <footer class="py-4 text-center text-[11px] tracking-wider text-slate-400 dark:text-slate-600">AI BRIDGE · POWERED BY LARAVEL & GEMINI</footer>
 </div>
 
 <!-- ============================================================ -->
-<!-- PAGE 2: CHAT                                                  -->
+<!-- PAGE: CHAT                                                    -->
 <!-- ============================================================ -->
-<div id="page-chat" class="page" style="height: 100vh; overflow: hidden;">
-    <header class="glass-panel border-b sticky top-0 z-20 flex-shrink-0" style="border-color: var(--border-color);">
+<div id="page-chat" class="page hidden h-screen overflow-hidden flex-col">
+    <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 flex-shrink-0 transition-colors">
         <div class="max-w-6xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <button onclick="showPage('home')" class="btn-ghost p-2 rounded-xl" title="Back to home">
+                <button data-action="show-page" data-page="home" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors" title="Back to home">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 </button>
                 <div class="flex items-center space-x-2.5">
                     <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></div>
-                    <h1 class="text-sm md:text-base font-semibold tracking-tight" style="color: var(--text-primary);">
-                        AI Bridge Assistant
-                    </h1>
+                    <h1 class="text-sm md:text-base font-semibold tracking-tight text-slate-900 dark:text-white">AI Bridge Assistant</h1>
                 </div>
             </div>
             <div class="flex items-center gap-2 md:gap-3">
-                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme" style="width:44px;height:24px;">
-                    <span class="toggle-knob" id="theme-knob-chat" style="width:18px;height:18px;font-size:9px;">☀️</span>
+                <button id="mobile-pin-toggle" data-action="toggle-pin-sidebar" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors md:hidden" title="Toggle pins">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
                 </button>
-                <button id="login-btn" onclick="openLoginModal()" class="btn-primary text-xs font-semibold px-3.5 py-1.5 rounded-xl">
-                    Login
+                <button data-action="toggle-theme" class="relative w-11 h-6 rounded-full bg-slate-200 dark:bg-indigo-600 transition-colors duration-300">
+                    <span id="theme-knob-chat" class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white dark:bg-slate-900 shadow flex items-center justify-center text-[9px] transition-transform duration-300 dark:translate-x-[20px]">☀️</span>
                 </button>
+                <button id="login-btn" data-action="open-login" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl shadow-sm transition-all">Login</button>
                 <div id="user-info" class="hidden items-center gap-2">
                     <div class="text-right leading-tight hidden sm:block">
-                        <div id="user-name" class="text-xs font-semibold" style="color: var(--text-primary);"></div>
-                        <div id="user-role" class="text-[10px] uppercase tracking-wider" style="color: var(--text-muted);"></div>
+                        <div id="user-name" class="text-xs font-semibold text-slate-800 dark:text-slate-200"></div>
+                        <div id="user-role" class="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500"></div>
                     </div>
-                    <button onclick="logout()" title="Logout" class="btn-ghost p-2 rounded-xl">
+                    <button data-action="logout" title="Logout" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                     </button>
                 </div>
@@ -521,1301 +174,2031 @@
         </div>
     </header>
 
-    <main id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 max-w-5xl w-full mx-auto" style="scroll-behavior: smooth;">
-        <div class="flex items-start gap-3 md:gap-4 message-wrapper fade-in">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 text-white"
-                 style="background: linear-gradient(135deg, var(--accent), #7c3aed); box-shadow: 0 2px 16px -4px rgba(79,70,229,0.4);">AI</div>
-            <div class="bubble-ai rounded-2xl p-5 max-w-3xl text-sm leading-relaxed">
-                <p class="font-semibold mb-1" style="color: var(--text-primary);">Hello, I'm your AI Bridge assistant.</p>
-                <p style="color: var(--text-secondary);">
-                  Ask me to execute tasks, manage records, or generate reports. I handle tables, files, images, and more with full recursive data support.</p>
-            </div>
-        </div>
-    </main>
+    <div class="flex-1 flex overflow-hidden max-w-6xl w-full mx-auto relative">
+        <div id="pin-overlay" data-action="close-pin-sidebar" class="hidden fixed inset-0 bg-black/40 z-30 md:hidden"></div>
 
-    <footer class="glass-footer border-t p-3 md:p-4 flex-shrink-0" style="border-color: var(--border-color);">
+        <aside id="pin-sidebar" class="w-64 border-r border-slate-200 dark:border-slate-800 flex-shrink-0 flex flex-col bg-white dark:bg-slate-900 transition-colors shadow-xl md:shadow-none">
+            <div class="p-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                    Pinned
+                </h2>
+                <div class="flex items-center gap-1">
+                    <span id="pin-count" class="text-[10px] bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full font-medium">0</span>
+                    <button data-action="close-pin-sidebar" class="md:hidden p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div id="pin-list" class="flex-1 overflow-y-auto p-2 space-y-1 text-sm"></div>
+            <div class="p-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+                <button data-action="restore-default-pins" class="text-[11px] text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 py-1.5 transition-colors font-medium">Restore defaults</button>
+                <button data-action="clear-all-pins" class="text-[11px] text-slate-400 hover:text-red-500 dark:hover:text-red-400 py-1.5 transition-colors">Clear all</button>
+            </div>
+        </aside>
+
+        <main id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 scroll-smooth">
+            <div class="flex items-start gap-3 md:gap-4 fade-in">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-lg shadow-indigo-500/20">AI</div>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 max-w-3xl text-sm leading-relaxed shadow-sm transition-colors">
+                    <p class="font-semibold text-slate-800 dark:text-slate-200 mb-1">Hello, I'm your AI Bridge assistant.</p>
+                    <p class="text-slate-500 dark:text-slate-400">Ask me to execute tasks, manage records, or generate reports. I handle tables, files, images, and more with full recursive data support.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 p-3 md:p-4 flex-shrink-0 transition-colors">
         <div class="max-w-5xl mx-auto">
-            <div class="chat-input rounded-2xl p-1.5 flex items-end gap-2">
-                <textarea id="prompt-input" rows="1" placeholder="Type a message or command…"
-                    class="flex-1 bg-transparent px-3.5 py-3 resize-none text-sm focus:outline-none min-h-[50px] max-h-40"></textarea>
-                <button id="send-btn" type="button"
-                    class="btn-primary p-3 rounded-xl flex items-center justify-center flex-shrink-0 mb-0.5 mr-0.5">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-1.5 flex items-end gap-2 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
+                <textarea id="prompt-input" rows="1" placeholder="Type a message or command…" class="flex-1 bg-transparent px-3.5 py-3 resize-none text-sm focus:outline-none min-h-[50px] max-h-40 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"></textarea>
+                <button id="send-btn" data-action="send-prompt" type="button" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-xl flex items-center justify-center flex-shrink-0 mb-0.5 mr-0.5 shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                 </button>
             </div>
-            <p class="text-center text-[10px] tracking-wider mt-2" style="color: var(--text-muted);">AI BRIDGE · POWERED BY LARAVEL & GEMINI</p>
+            <p class="text-center text-[10px] tracking-wider mt-2 text-slate-400 dark:text-slate-600">AI BRIDGE · POWERED BY LARAVEL & GEMINI</p>
         </div>
     </footer>
 </div>
 
 <!-- ============================================================ -->
-<!-- LOGIN MODAL                                                    -->
+<!-- MODAL: LOGIN                                                  -->
 <!-- ============================================================ -->
-<div id="login-modal" class="hidden fixed inset-0 modal-overlay items-center justify-center z-50 p-4">
-    <div class="modal-panel rounded-2xl w-full max-w-sm p-6 fade-in">
+<div id="login-modal" class="hidden fixed inset-0 bg-slate-900/40 dark:bg-black/70 backdrop-blur-sm items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl fade-in transition-colors">
         <div class="flex items-center justify-between mb-5">
-            <h2 class="text-lg font-semibold" style="color: var(--text-primary);">Login</h2>
-            <button onclick="closeLoginModal()" class="btn-ghost p-1.5 rounded-lg">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Login</h2>
+            <button data-action="close-login" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
         </div>
-        <div id="login-error" class="hidden mb-3 text-xs rounded-xl px-3 py-2.5"
-             style="background: var(--error-bg); border: 1px solid var(--error-border); color: var(--error-text);"></div>
-        <form id="login-form" onsubmit="return submitLogin(event)" class="space-y-4">
+        <div id="login-error" class="hidden mb-3 text-xs rounded-xl px-3 py-2.5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"></div>
+        <form id="login-form" class="space-y-4">
             <div>
-                <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">Email</label>
-                <input id="login-email" type="email" required autocomplete="username"
-                    class="chat-input w-full rounded-xl px-3.5 py-2.5 text-sm focus:outline-none" />
+                <label class="block text-xs font-medium mb-1.5 text-slate-600 dark:text-slate-400">Email</label>
+                <input id="login-email" type="email" required autocomplete="username" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-800 dark:text-slate-100 transition-colors" />
             </div>
             <div>
-                <label class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">Password</label>
-                <input id="login-password" type="password" required autocomplete="current-password"
-                    class="chat-input w-full rounded-xl px-3.5 py-2.5 text-sm focus:outline-none" />
+                <label class="block text-xs font-medium mb-1.5 text-slate-600 dark:text-slate-400">Password</label>
+                <input id="login-password" type="password" required autocomplete="current-password" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-800 dark:text-slate-100 transition-colors" />
             </div>
-            <button id="login-submit-btn" type="submit" class="btn-primary w-full text-sm font-semibold py-2.5 rounded-xl flex items-center justify-center">
-                Login
-            </button>
+            <button id="login-submit-btn" type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2.5 rounded-xl shadow-sm transition-all">Login</button>
         </form>
     </div>
 </div>
 
 <!-- ============================================================ -->
-<!-- PREVIEW MODAL                                                  -->
+<!-- MODAL: PREVIEW                                                -->
 <!-- ============================================================ -->
-<div id="preview-modal" class="hidden fixed inset-0 modal-overlay items-center justify-center z-[60] p-4">
-    <div class="modal-panel rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col fade-in">
-        <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-color);">
-            <h3 id="preview-title" class="text-sm font-semibold truncate" style="color: var(--text-primary);">Preview</h3>
-            <button onclick="closePreviewModal()" class="btn-ghost p-1.5 rounded-lg">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
+<div id="preview-modal" class="hidden fixed inset-0 bg-slate-900/40 dark:bg-black/70 backdrop-blur-sm items-center justify-center z-[60] p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl fade-in transition-colors">
+        <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
+            <h3 id="preview-title" class="text-sm font-semibold truncate text-slate-800 dark:text-slate-200">Preview</h3>
+            <button data-action="close-preview" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
         </div>
         <div id="preview-content" class="p-4 overflow-auto flex-1"></div>
-        <div class="p-4 border-t flex justify-end gap-3" style="border-color: var(--border-color);">
-            <button onclick="closePreviewModal()" class="btn-ghost text-xs font-medium px-4 py-2 rounded-lg" style="border: 1px solid var(--border-strong);">Close</button>
-            <button id="preview-download-btn" onclick="downloadPreviewFile()" class="btn-primary text-xs font-semibold px-4 py-2 rounded-lg">Download</button>
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
+            <button data-action="close-preview" class="text-xs font-medium px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Close</button>
+            <button data-action="download-preview" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm transition-all">Download</button>
         </div>
     </div>
 </div>
 
 <!-- ============================================================ -->
-<!-- SCRIPTS                                                        -->
+<!-- APPLICATION SCRIPT (Vue-like structure)                       -->
 <!-- ============================================================ -->
 <script>
 /* ============================================================
-   THEME
-   ============================================================ */
-function getStoredTheme() { return localStorage.getItem('ai_bridge_theme') || 'light'; }
-function applyTheme(theme) {
-    if (theme === 'dark') document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
-    const knob1 = document.getElementById('theme-knob');
-    const knob2 = document.getElementById('theme-knob-chat');
-    if (knob1) knob1.textContent = theme === 'dark' ? '🌙' : '☀️';
-    if (knob2) knob2.textContent = theme === 'dark' ? '🌙' : '☀️';
-    localStorage.setItem('ai_bridge_theme', theme);
-}
-function toggleTheme() {
-    const current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-    applyTheme(current === 'dark' ? 'light' : 'dark');
-}
-applyTheme(getStoredTheme());
+ * AI BRIDGE · Pro
+ * Vue-like vanilla architecture with fixed auth flow
+ * ============================================================ */
+(() => {
+    'use strict';
 
-/* ============================================================
-   PAGE NAV
-   ============================================================ */
-function showPage(name) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + name).classList.add('active');
-    if (name === 'chat') setTimeout(() => document.getElementById('prompt-input')?.focus(), 100);
-}
+    /* ==========================================================
+     * CONSTANTS
+     * ========================================================== */
+    const STORAGE_KEYS = Object.freeze({
+        THEME: 'ai_bridge_theme',
+        PINNED: 'ai_bridge_pinned_prompts',
+        PIN_INIT: 'ai_bridge_pins_initialized',
+        AUTH_TOKEN: 'ai_bridge_auth_token',
+        AUTH_USER: 'ai_bridge_auth_user',
+    });
 
-/* ============================================================
-   DOM
-   ============================================================ */
-const chatContainer = document.getElementById('chat-container');
-const promptInput = document.getElementById('prompt-input');
-const sendBtn = document.getElementById('send-btn');
+    const API = Object.freeze({
+        LOGIN: '/api/v1/login',
+        PROMPT: '/api/ai/prompt',
+    });
 
-/* ============================================================
-   AUTH
-   ============================================================ */
-const AUTH_TOKEN_KEY = 'ai_bridge_auth_token';
-const AUTH_USER_KEY = 'ai_bridge_auth_user';
-function getAuthToken() { return localStorage.getItem(AUTH_TOKEN_KEY); }
-function getAuthUser() { try { return JSON.parse(localStorage.getItem(AUTH_USER_KEY) || 'null'); } catch (e) { return null; } }
-function setAuthSession(token, user) {
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user || {}));
-    updateAuthUI();
-}
-function clearAuthSession() {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_USER_KEY);
-    updateAuthUI();
-}
-function logout() { clearAuthSession(); }
+    const MAX_AUTO_PINS = 5;
+    const TYPING_MAX_HEIGHT = 160;
 
-function extractAuthPayload(json) {
-    const root = json?.data ?? json ?? {};
-    const token = root.token || root.access_token || json?.token || json?.access_token || null;
-    const user = root.user || json?.user || null;
-    let role = null;
-    if (user) {
-        if (typeof user.role === 'string') role = user.role;
-        else if (Array.isArray(user.roles) && user.roles.length > 0)
-            role = typeof user.roles[0] === 'string' ? user.roles[0] : (user.roles[0]?.name ?? null);
-    }
-    return { token, user: user ? { ...user, role } : null };
-}
+    const DEFAULT_PINS = Object.freeze([
+        { id: 'default-1', text: 'Show me the latest 10 records', isDefault: true },
+        { id: 'default-2', text: 'List all users with their roles', isDefault: true },
+        { id: 'default-3', text: 'Generate a summary report', isDefault: true },
+        { id: 'default-4', text: 'Export all data as JSON', isDefault: true },
+    ]);
 
-function updateAuthUI() {
-    const token = getAuthToken();
-    const user = getAuthUser();
-    const loginBtn = document.getElementById('login-btn');
-    const userInfo = document.getElementById('user-info');
-    if (token && user) {
-        loginBtn.classList.add('hidden');
-        userInfo.classList.remove('hidden'); userInfo.classList.add('flex');
-        document.getElementById('user-name').textContent = user.name || user.email || 'Logged in';
-        const roleEl = document.getElementById('user-role');
-        if (user.role) { roleEl.textContent = user.role; roleEl.classList.remove('hidden'); }
-        else { roleEl.textContent = ''; roleEl.classList.add('hidden'); }
-    } else {
-        loginBtn.classList.remove('hidden');
-        userInfo.classList.add('hidden'); userInfo.classList.remove('flex');
-    }
-}
+    const BINARY_EXTENSIONS = Object.freeze({
+        pdf:  { type: 'pdf',     icon: '📄', label: 'PDF Document',      mime: 'application/pdf' },
+        doc:  { type: 'word',    icon: '📝', label: 'Word Document',     mime: 'application/msword' },
+        docx: { type: 'word',    icon: '📝', label: 'Word Document',     mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+        xls:  { type: 'excel',   icon: '📊', label: 'Excel Spreadsheet', mime: 'application/vnd.ms-excel' },
+        xlsx: { type: 'excel',   icon: '📊', label: 'Excel Spreadsheet', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+        csv:  { type: 'excel',   icon: '📊', label: 'CSV File',          mime: 'text/csv' },
+        zip:  { type: 'zip',     icon: '📦', label: 'ZIP Archive',       mime: 'application/zip' },
+        rar:  { type: 'zip',     icon: '📦', label: 'RAR Archive',       mime: 'application/x-rar-compressed' },
+        '7z': { type: 'zip',     icon: '📦', label: '7-Zip Archive',     mime: 'application/x-7z-compressed' },
+        tar:  { type: 'zip',     icon: '📦', label: 'TAR Archive',       mime: 'application/x-tar' },
+        gz:   { type: 'zip',     icon: '📦', label: 'GZIP Archive',      mime: 'application/gzip' },
+        ppt:  { type: 'generic', icon: '📽️', label: 'PowerPoint',        mime: 'application/vnd.ms-powerpoint' },
+        pptx: { type: 'generic', icon: '📽️', label: 'PowerPoint',        mime: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' },
+        txt:  { type: 'generic', icon: '📃', label: 'Text File',         mime: 'text/plain' },
+        bin:  { type: 'generic', icon: '💾', label: 'Binary File',       mime: 'application/octet-stream' },
+        exe:  { type: 'generic', icon: '⚙️', label: 'Executable',        mime: 'application/x-msdownload' },
+        dmg:  { type: 'generic', icon: '💿', label: 'Disk Image',        mime: 'application/x-apple-diskimage' },
+        iso:  { type: 'generic', icon: '💿', label: 'ISO Image',         mime: 'application/x-iso9660-image' },
+    });
 
-function openLoginModal() {
-    document.getElementById('login-error').classList.add('hidden');
-    const m = document.getElementById('login-modal');
-    m.classList.remove('hidden'); m.classList.add('flex');
-    setTimeout(() => document.getElementById('login-email').focus(), 100);
-}
-function closeLoginModal() {
-    const m = document.getElementById('login-modal');
-    m.classList.add('hidden'); m.classList.remove('flex');
-    document.getElementById('login-form').reset();
-}
-async function submitLogin(event) {
-    event.preventDefault();
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const errorBox = document.getElementById('login-error');
-    const submitBtn = document.getElementById('login-submit-btn');
-    errorBox.classList.add('hidden');
-    submitBtn.disabled = true; submitBtn.textContent = 'Logging in...';
-    try {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        const response = await fetch('/api/v1/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) },
-            body: JSON.stringify({ email, password })
-        });
-        const json = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(json.message || 'Invalid email or password.');
-        const { token, user } = extractAuthPayload(json);
-        if (!token) throw new Error('Login succeeded but no token returned.');
-        setAuthSession(token, user);
-        closeLoginModal();
-    } catch (err) {
-        errorBox.textContent = err.message || 'Login failed.';
-        errorBox.classList.remove('hidden');
-    } finally {
-        submitBtn.disabled = false; submitBtn.textContent = 'Login';
-    }
-    return false;
-}
+    const IMAGE_EXT_REGEX = /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/i;
 
-/* ============================================================
-   APPEND MESSAGE
-   ============================================================ */
-function appendMessage(content, sender, isError = false, isHtml = false, rawUserText = '') {
-    const isUser = sender === 'user';
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `flex items-start gap-3 md:gap-4 ${isUser ? 'flex-row-reverse' : ''} message-wrapper fade-in`;
+    /* ==========================================================
+     * UTILITIES
+     * ========================================================== */
+    const Utils = {
+        escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        },
 
-    let bubbleClass = isUser ? 'bubble-user' : 'bubble-ai';
-    if (isError) bubbleClass = 'bubble-error';
+        escapeForAttribute(str) {
+            return String(str)
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '&quot;')
+                .replace(/\n/g, '\\n')
+                .replace(/\r/g, '');
+        },
 
-    const avatar = isUser
-        ? `<div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 shadow-md text-white" style="background: linear-gradient(135deg, #475569, #334155);">U</div>`
-        : `<div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 shadow-lg text-white" style="background: linear-gradient(135deg, var(--accent), #7c3aed);">AI</div>`;
-
-    let actionsHtml = '';
-    if (!isUser) {
-        actionsHtml = `
-            <div class="message-actions flex items-center gap-1 mt-2">
-                <button onclick="copyMessageContent(this)" class="btn-ghost p-1.5 rounded-lg" title="Copy response">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                </button>
-                <button onclick="exportMessageJson(this)" class="btn-ghost p-1.5 rounded-lg" title="Export JSON">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                </button>
-            </div>
-        `;
-    }
-
-    let userActions = '';
-    if (isUser && rawUserText) {
-        userActions = `
-            <div class="message-actions flex items-center gap-1 mt-1 justify-end">
-                <button onclick="resubmitPrompt('${escapeForAttribute(rawUserText)}')" class="btn-ghost p-1.5 rounded-lg" title="Re-submit">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                </button>
-            </div>
-        `;
-    }
-
-    const bubbleContent = isHtml ? content : `<p>${escapeHtml(content)}</p>`;
-
-    messageDiv.innerHTML = `
-        ${avatar}
-        <div class="flex flex-col max-w-3xl w-full ${isUser ? 'items-end' : 'items-start'}">
-            <div class="${bubbleClass} rounded-2xl p-4 md:p-5 w-full text-sm leading-relaxed overflow-hidden">
-                ${bubbleContent}
-            </div>
-            ${actionsHtml}
-            ${userActions}
-        </div>
-    `;
-
-    const bubbleEl = messageDiv.querySelector('.rounded-2xl');
-    if (bubbleEl) {
-        bubbleEl.dataset.rawContent = isHtml ? content : escapeHtml(content);
-        bubbleEl.dataset.isHtml = isHtml ? 'true' : 'false';
-    }
-    chatContainer.appendChild(messageDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-function escapeForAttribute(str) {
-    return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n');
-}
-
-/* ============================================================
-   COPY / EXPORT
-   ============================================================ */
-function copyMessageContent(btn) {
-    const wrapper = btn.closest('.message-wrapper');
-    const bubble = wrapper.querySelector('.rounded-2xl');
-    const raw = bubble.dataset.rawContent || bubble.innerText;
-    const isHtml = bubble.dataset.isHtml === 'true';
-    let textToCopy = raw;
-    if (isHtml) {
-        const temp = document.createElement('div');
-        temp.innerHTML = raw;
-        textToCopy = temp.innerText || temp.textContent || '';
-    }
-    navigator.clipboard.writeText(textToCopy).then(() => {
-        btn.classList.add('copy-feedback');
-        const orig = btn.innerHTML;
-        btn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
-        setTimeout(() => { btn.classList.remove('copy-feedback'); btn.innerHTML = orig; }, 1500);
-    }).catch(() => alert('Copy failed'));
-}
-
-function exportMessageJson(btn) {
-    const wrapper = btn.closest('.message-wrapper');
-    const bubble = wrapper.querySelector('.rounded-2xl');
-    const raw = bubble.dataset.rawContent || bubble.innerText;
-    const isHtml = bubble.dataset.isHtml === 'true';
-    let textContent = raw;
-    if (isHtml) {
-        const temp = document.createElement('div');
-        temp.innerHTML = raw;
-        textContent = temp.innerText || temp.textContent || '';
-    }
-    downloadJson({ exportedAt: new Date().toISOString(), content: textContent, isHtml, rawHtml: isHtml ? raw : null }, `ai-response-${Date.now()}.json`);
-}
-
-function downloadJson(data, filename) {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
-}
-
-function resubmitPrompt(text) {
-    promptInput.value = text;
-    promptInput.style.height = 'auto';
-    promptInput.style.height = Math.min(promptInput.scrollHeight, 160) + 'px';
-    promptInput.focus();
-}
-
-/* ============================================================
-   LOADING
-   ============================================================ */
-function showLoadingIndicator() {
-    const id = 'loading-' + Date.now();
-    const div = document.createElement('div');
-    div.id = id;
-    div.className = 'flex items-start gap-3 md:gap-4 message-wrapper';
-    div.innerHTML = `
-        <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 shadow-lg text-white" style="background: linear-gradient(135deg, var(--accent), #7c3aed);">AI</div>
-        <div class="bubble-ai rounded-2xl p-4 flex items-center gap-2">
-            <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
-        </div>
-    `;
-    chatContainer.appendChild(div);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-    return id;
-}
-function removeLoadingIndicator(id) {
-    const el = document.getElementById(id);
-    if (el) el.remove();
-}
-
-/* ============================================================
-   JSON HELPERS
-   ============================================================ */
-function tryParseJson(str) {
-    try {
-        const trimmed = str.trim();
-        if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
-            return JSON.parse(trimmed);
-        }
-    } catch (e) {}
-    return null;
-}
-
-/* ============================================================
-   UNIVERSAL PAYLOAD & META EXTRACTOR
-   ------------------------------------------------------------
-   Auto-detects and handles all known response formats:
-
-   1) Wrapped standard:   { status, message, data: [...] }
-   2) Wrapped + paginator: { status, message, data: { data: [...], links, meta } }
-   3) Action envelope:    { status, action, result: { success, data: [...] } }
-   4) Action + paginator: { status, action, result: { success, data: { data: [...], links, meta } } }
-   5) Nested array:       { status, action, result: { data: [ [...records...], {...links...}, {...meta...} ] } }
-   6) Plain array:        [ {...}, {...} ]
-   7) Single record:      { id, name, ... }
-
-   Returns: { content, meta, links }
-   ============================================================ */
-function extractPayloadAndMeta(response) {
-    if (!response || typeof response !== 'object') {
-        return { content: response, meta: null, links: null };
-    }
-
-    let node = response;
-    let meta = null;
-    let links = null;
-
-    // Descend through common envelope keys (result, data, payload)
-    // We do this iteratively until we find an array or a leaf object.
-    let guard = 0;
-    while (guard++ < 6) {
-        if (!node || typeof node !== 'object' || Array.isArray(node)) break;
-
-        // If current node has explicit meta/links, capture them (highest priority)
-        if (node.meta && typeof node.meta === 'object' && meta === null) meta = node.meta;
-        if (node.links && typeof node.links === 'object' && links === null) links = node.links;
-
-        // Descend priority: result → data → payload → content → items → records
-        if (node.result !== undefined) { node = node.result; continue; }
-        if (node.payload !== undefined) { node = node.payload; continue; }
-        if (node.data !== undefined) { node = node.data; continue; }
-        if (node.content !== undefined && node.content !== null) { node = node.content; continue; }
-        break;
-    }
-
-    // ============================================================
-    // FORMAT 5: Nested array  [ [records...], {links}, {meta} ]
-    // Detected when node is an array whose first element is an array
-    // of objects and the trailing elements are objects.
-    // ============================================================
-    if (
-        Array.isArray(node) &&
-        node.length >= 1 &&
-        Array.isArray(node[0]) &&
-        node[0].length >= 0 &&
-        (node[0].length === 0 || typeof node[0][0] === 'object') &&
-        node.slice(1).every(x => x === null || typeof x === 'object')
-    ) {
-        const records = node[0];
-        const trailing = node.slice(1);
-        // Convention: [records, links, meta] — but be tolerant of order
-        for (const t of trailing) {
-            if (!t || typeof t !== 'object' || Array.isArray(t)) continue;
-            // Heuristic: an object with 'current_page' or 'total' or 'last_page' is pagination meta
-            if ('current_page' in t || 'last_page' in t || 'per_page' in t || 'total' in t) {
-                if (meta === null) meta = t;
-            }
-            // An object with 'first'/'last'/'prev'/'next' is links
-            else if ('first' in t || 'last' in t || 'prev' in t || 'next' in t) {
-                if (links === null) links = t;
-            }
-            // Fallback: fill remaining slot
-            else if (meta === null) meta = t;
-            else if (links === null) links = t;
-        }
-        return { content: records, meta, links };
-    }
-
-    // ============================================================
-    // FORMAT 1,2,3,4 (post-descent): node is now the actual payload
-    // It may still be wrapped in { data: [...], links, meta }
-    // ============================================================
-    if (node && typeof node === 'object' && !Array.isArray(node)) {
-        if (Array.isArray(node.data)) {
-            if (node.meta && meta === null) meta = node.meta;
-            if (node.links && links === null) links = node.links;
-            node = node.data;
-        } else if (Array.isArray(node.items)) {
-            if (node.meta && meta === null) meta = node.meta;
-            if (node.links && links === null) links = node.links;
-            node = node.items;
-        }
-    }
-
-    return { content: node, meta, links };
-}
-
-/* ============================================================
-   BINARY FILE DETECTION
-   ============================================================ */
-const BINARY_EXTENSIONS = {
-    pdf: { type: 'pdf', icon: '📄', label: 'PDF Document', mime: 'application/pdf' },
-    doc: { type: 'word', icon: '📝', label: 'Word Document', mime: 'application/msword' },
-    docx: { type: 'word', icon: '📝', label: 'Word Document', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
-    xls: { type: 'excel', icon: '📊', label: 'Excel Spreadsheet', mime: 'application/vnd.ms-excel' },
-    xlsx: { type: 'excel', icon: '📊', label: 'Excel Spreadsheet', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
-    csv: { type: 'excel', icon: '📊', label: 'CSV File', mime: 'text/csv' },
-    zip: { type: 'zip', icon: '📦', label: 'ZIP Archive', mime: 'application/zip' },
-    rar: { type: 'zip', icon: '📦', label: 'RAR Archive', mime: 'application/x-rar-compressed' },
-    '7z': { type: 'zip', icon: '📦', label: '7-Zip Archive', mime: 'application/x-7z-compressed' },
-    tar: { type: 'zip', icon: '📦', label: 'TAR Archive', mime: 'application/x-tar' },
-    gz: { type: 'zip', icon: '📦', label: 'GZIP Archive', mime: 'application/gzip' },
-    ppt: { type: 'generic', icon: '📽️', label: 'PowerPoint', mime: 'application/vnd.ms-powerpoint' },
-    pptx: { type: 'generic', icon: '📽️', label: 'PowerPoint', mime: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' },
-    txt: { type: 'generic', icon: '📃', label: 'Text File', mime: 'text/plain' },
-    bin: { type: 'generic', icon: '💾', label: 'Binary File', mime: 'application/octet-stream' },
-    exe: { type: 'generic', icon: '⚙️', label: 'Executable', mime: 'application/x-msdownload' },
-    dmg: { type: 'generic', icon: '💿', label: 'Disk Image', mime: 'application/x-apple-diskimage' },
-    iso: { type: 'generic', icon: '💿', label: 'ISO Image', mime: 'application/x-iso9660-image' }
-};
-
-function getFileExtension(str) {
-    if (!str || typeof str !== 'string') return '';
-    const clean = str.split('?')[0].split('#')[0];
-    const lastDot = clean.lastIndexOf('.');
-    if (lastDot === -1) return '';
-    return clean.substring(lastDot + 1).toLowerCase();
-}
-
-function formatFileSize(bytes) {
-    if (!bytes || bytes === 0) return null;
-    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    let i = 0;
-    let size = bytes;
-    while (size >= 1024 && i < units.length - 1) { size /= 1024; i++; }
-    return `${size.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
-}
-
-function detectFileResource(value) {
-    if (!value) return null;
-
-    if (typeof value === 'string') {
-        if (!(value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/') || value.startsWith('data:'))) return null;
-        const ext = getFileExtension(value);
-        if (BINARY_EXTENSIONS[ext]) {
-            const info = BINARY_EXTENSIONS[ext];
-            return {
-                url: value, type: info.type, icon: info.icon, label: info.label, mime: info.mime,
-                name: value.split('/').pop().split('?')[0] || `file.${ext}`, size: null
-            };
-        }
-        if (/\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/i.test(value)) {
-            return {
-                url: value, type: 'image', icon: '🖼️', label: 'Image', mime: 'image/*',
-                name: value.split('/').pop().split('?')[0] || 'image', size: null
-            };
-        }
-        return null;
-    }
-
-    if (typeof value === 'object' && value !== null) {
-        const fileFields = [
-            'file', 'file_url', 'url', 'download_url', 'download',
-            'image', 'image_url', 'thumbnail', 'attachment', 'attachment_url',
-            'document', 'document_url', 'archive', 'archive_url',
-            'zip', 'zip_url', 'pdf', 'pdf_url', 'excel', 'excel_url'
-        ];
-
-        for (const field of fileFields) {
-            if (value[field] && typeof value[field] === 'string' &&
-                (value[field].startsWith('http') || value[field].startsWith('/') || value[field].startsWith('data:'))) {
-                const url = value[field];
-                const ext = getFileExtension(url);
-                const name = value.name || value.filename || value.file_name ||
-                             value.original_name || url.split('/').pop().split('?')[0] || 'file';
-                const size = value.size || value.file_size || value.filesize || null;
-
-                if (/\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/i.test(url)) {
-                    return { url, type: 'image', icon: '🖼️', label: 'Image', mime: 'image/*', name, size };
+        tryParseJson(str) {
+            try {
+                const trimmed = str.trim();
+                if ((trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+                    (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+                    return JSON.parse(trimmed);
                 }
+            } catch (e) { /* ignore */ }
+            return null;
+        },
+
+        getFileExtension(str) {
+            if (!str || typeof str !== 'string') return '';
+            const clean = str.split('?')[0].split('#')[0];
+            const dot = clean.lastIndexOf('.');
+            return dot === -1 ? '' : clean.substring(dot + 1).toLowerCase();
+        },
+
+        formatFileSize(bytes) {
+            if (!bytes || bytes === 0) return null;
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            let i = 0, size = bytes;
+            while (size >= 1024 && i < units.length - 1) { size /= 1024; i++; }
+            return `${size.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+        },
+
+        mimeToExtension(mime) {
+            if (!mime) return 'bin';
+            if (mime.includes('pdf')) return 'pdf';
+            if (mime.includes('spreadsheetml') || mime.includes('ms-excel')) return 'xlsx';
+            if (mime.includes('wordprocessingml') || mime.includes('msword')) return 'docx';
+            if (mime.includes('presentationml') || mime.includes('ms-powerpoint')) return 'pptx';
+            if (mime.includes('zip')) return 'zip';
+            if (mime.includes('rar')) return 'rar';
+            if (mime.includes('7z')) return '7z';
+            if (mime.includes('gzip')) return 'gz';
+            if (mime.includes('tar')) return 'tar';
+            if (mime.includes('csv')) return 'csv';
+            if (mime.includes('png')) return 'png';
+            if (mime.includes('jpeg') || mime.includes('jpg')) return 'jpg';
+            if (mime.includes('gif')) return 'gif';
+            if (mime.includes('webp')) return 'webp';
+            if (mime.includes('svg')) return 'svg';
+            return 'bin';
+        },
+
+        extractFilenameFromDisposition(disposition) {
+            if (!disposition) return null;
+            const utf8 = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+            if (utf8) {
+                try { return decodeURIComponent(utf8[1].trim().replace(/^["']|["']$/g, '')); }
+                catch (e) { /* ignore */ }
+            }
+            const std = disposition.match(/filename\s*=\s*"?([^";]+)"?/i);
+            return std ? std[1].trim() : null;
+        },
+
+        downloadJson(data, filename) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        },
+    };
+
+    /* ==========================================================
+     * STORAGE LAYER
+     * ========================================================== */
+    const Storage = {
+        get(key, fallback = null) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw === null ? fallback : raw;
+            } catch (e) { return fallback; }
+        },
+        set(key, value) {
+            try { localStorage.setItem(key, value); }
+            catch (e) { console.warn('[Storage] set failed', key, e); }
+        },
+        remove(key) {
+            try { localStorage.removeItem(key); }
+            catch (e) { /* ignore */ }
+        },
+        getJSON(key, fallback = null) {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw === null ? fallback : JSON.parse(raw);
+            } catch (e) { return fallback; }
+        },
+        setJSON(key, value) {
+            try { localStorage.setItem(key, JSON.stringify(value)); }
+            catch (e) { console.warn('[Storage] setJSON failed', key, e); }
+        },
+    };
+
+    /* ==========================================================
+     * REACTIVE STATE (Vue-like proxy)
+     * ========================================================== */
+    const createReactive = (initial = {}) => {
+        const watchers = [];
+        return new Proxy(initial, {
+            set(target, key, value) {
+                const old = target[key];
+                target[key] = value;
+                if (old !== value) {
+                    watchers.forEach(fn => {
+                        try { fn(key, value, old); }
+                        catch (e) { console.warn('[Reactive] watcher error', e); }
+                    });
+                }
+                return true;
+            },
+            get(target, key) { return target[key]; },
+        });
+    };
+
+    /* ==========================================================
+     * HTTP CLIENT (centralized request wrapper)
+     * ========================================================== */
+    const Http = {
+        getCsrfToken() {
+            return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        },
+
+        getAuthToken() {
+            // Prefer reactive state, fall back to localStorage
+            return (typeof AuthStore !== 'undefined' && AuthStore.state.token) ||
+                   Storage.get(STORAGE_KEYS.AUTH_TOKEN);
+        },
+
+        buildHeaders(extra = {}, includeAuth = true) {
+            const headers = {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                ...extra,
+            };
+
+            const csrf = this.getCsrfToken();
+            if (csrf) headers['X-CSRF-TOKEN'] = csrf;
+
+            if (includeAuth) {
+                const token = this.getAuthToken();
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                } else {
+                    console.warn('[Http] No auth token available for this request');
+                }
+            }
+
+            return headers;
+        },
+
+        async request(url, options = {}) {
+            const {
+                method = 'GET',
+                body = null,
+                headers = {},
+                includeAuth = true,
+                accept = 'application/json',
+            } = options;
+
+            const finalHeaders = this.buildHeaders({ ...headers, 'Accept': accept }, includeAuth);
+
+            const init = {
+                method,
+                headers: finalHeaders,
+                credentials: 'include',
+            };
+
+            if (body !== null) {
+                if (body instanceof FormData) {
+                    init.body = body;
+                    delete finalHeaders['Content-Type'];
+                } else {
+                    finalHeaders['Content-Type'] = 'application/json';
+                    init.body = JSON.stringify(body);
+                }
+            }
+
+            console.groupCollapsed(`[Http] → ${method} ${url}`);
+            console.log('Headers:', finalHeaders);
+            if (body && !(body instanceof FormData)) console.log('Body:', body);
+            console.groupEnd();
+
+            const response = await fetch(url, init);
+            console.log(`[Http] ← ${response.status} ${method} ${url}`);
+
+            return response;
+        },
+    };
+
+    /* ==========================================================
+     * STORES
+     * ========================================================== */
+
+    /* ---- PinStore ---- */
+    const PinStore = {
+        state: createReactive({ items: [], sidebarOpen: false }),
+
+        get count() { return this.state.items.length; },
+        get autoPins() { return this.state.items.filter(p => p.isAuto); },
+        get manualPins() { return this.state.items.filter(p => !p.isAuto); },
+
+        load() {
+            this.state.items = Storage.getJSON(STORAGE_KEYS.PINNED, []);
+        },
+
+        persist() {
+            Storage.setJSON(STORAGE_KEYS.PINNED, this.state.items);
+        },
+
+        initDefaults() {
+            if (Storage.get(STORAGE_KEYS.PIN_INIT)) return;
+            const existing = Storage.getJSON(STORAGE_KEYS.PINNED, []);
+            const merged = [...DEFAULT_PINS.map(p => ({ ...p, createdAt: new Date().toISOString() }))];
+            existing.forEach(p => {
+                if (!merged.some(m => m.text === p.text)) merged.push(p);
+            });
+            this.state.items = merged;
+            this.persist();
+            Storage.set(STORAGE_KEYS.PIN_INIT, '1');
+        },
+
+        addManual(text) {
+            if (!text || !text.trim()) return;
+            const trimmed = text.trim();
+            if (this.state.items.some(p => p.text === trimmed)) return;
+            this.state.items.unshift({
+                id: 'manual-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+                text: trimmed,
+                createdAt: new Date().toISOString(),
+                isManual: true,
+            });
+            this.persist();
+        },
+
+        addAuto(text) {
+            if (!text || !text.trim()) return;
+            const trimmed = text.trim();
+            const filtered = this.state.items.filter(p => p.text !== trimmed);
+            filtered.unshift({
+                id: 'auto-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+                text: trimmed,
+                createdAt: new Date().toISOString(),
+                isAuto: true,
+            });
+            const manual = filtered.filter(p => !p.isAuto);
+            const autos = filtered.filter(p => p.isAuto).slice(0, MAX_AUTO_PINS);
+            this.state.items = [...autos, ...manual];
+            this.persist();
+        },
+
+        remove(id) {
+            this.state.items = this.state.items.filter(p => p.id !== id);
+            this.persist();
+        },
+
+        clearAll() {
+            if (!confirm('Remove all pinned prompts? (You can restore defaults later)')) return;
+            this.state.items = [];
+            this.persist();
+        },
+
+        restoreDefaults() {
+            if (!confirm('Restore default pinned prompts?')) return;
+            const merged = [...DEFAULT_PINS.map(p => ({ ...p, createdAt: new Date().toISOString() }))];
+            this.state.items.forEach(p => {
+                if (!merged.some(m => m.text === p.text)) merged.push(p);
+            });
+            this.state.items = merged;
+            this.persist();
+        },
+
+        toggleSidebar() { this.state.sidebarOpen = !this.state.sidebarOpen; },
+        closeSidebar() { this.state.sidebarOpen = false; },
+    };
+
+    /* ---- ThemeStore ---- */
+    const ThemeStore = {
+        state: createReactive({ current: 'light' }),
+
+        load() {
+            this.state.current = Storage.get(STORAGE_KEYS.THEME) || 'light';
+            this.apply();
+        },
+
+        apply() {
+            const root = document.documentElement;
+            if (this.state.current === 'dark') {
+                root.classList.add('dark');
+                root.classList.remove('light');
+            } else {
+                root.classList.remove('dark');
+                root.classList.add('light');
+            }
+            const icon = this.state.current === 'dark' ? '🌙' : '☀️';
+            const knob1 = document.getElementById('theme-knob');
+            const knob2 = document.getElementById('theme-knob-chat');
+            if (knob1) knob1.textContent = icon;
+            if (knob2) knob2.textContent = icon;
+        },
+
+        toggle() {
+            this.state.current = this.state.current === 'dark' ? 'light' : 'dark';
+            Storage.set(STORAGE_KEYS.THEME, this.state.current);
+            this.apply();
+        },
+    };
+
+    /* ---- AuthStore ---- */
+    const AuthStore = {
+        state: createReactive({
+            token: null,
+            user: null,
+            loading: false,
+        }),
+
+        get isAuthenticated() {
+            return Boolean(this.state.token && this.state.user);
+        },
+
+        get displayName() {
+            if (!this.state.user) return '';
+            return this.state.user.name || this.state.user.username || this.state.user.email || 'Logged in';
+        },
+
+        get displayRole() {
+            return this.state.user?.role || '';
+        },
+
+        load() {
+            this.state.token = Storage.get(STORAGE_KEYS.AUTH_TOKEN);
+            this.state.user = Storage.getJSON(STORAGE_KEYS.AUTH_USER);
+            if (this.state.token) {
+                console.log('[Auth] Restored session for', this.displayName);
+            }
+        },
+
+        setSession(token, user) {
+            if (!token) {
+                console.warn('[Auth] setSession called without token');
+                return;
+            }
+            // Persist FIRST so any concurrent request picks it up
+            Storage.set(STORAGE_KEYS.AUTH_TOKEN, token);
+            Storage.setJSON(STORAGE_KEYS.AUTH_USER, user || {});
+
+            // Then update reactive state
+            this.state.token = token;
+            this.state.user = user || {};
+
+            console.log('[Auth] Session saved:', {
+                token: String(token).substring(0, 20) + '…',
+                user: this.state.user,
+                isAuthenticated: this.isAuthenticated,
+            });
+        },
+
+        clear() {
+            this.state.token = null;
+            this.state.user = null;
+            Storage.remove(STORAGE_KEYS.AUTH_TOKEN);
+            Storage.remove(STORAGE_KEYS.AUTH_USER);
+            console.log('[Auth] Session cleared');
+        },
+
+        extractPayload(json) {
+            let root = json;
+            if (root && typeof root === 'object' && root.data && typeof root.data === 'object' && !Array.isArray(root.data)) {
+                root = root.data;
+            }
+
+            const token =
+                root?.token || root?.access_token || root?.api_token || root?.bearer_token ||
+                json?.token || json?.access_token || null;
+
+            let user =
+                root?.user || root?.data?.user ||
+                json?.user || json?.data?.user || null;
+
+            if (user && typeof user === 'object' && user.data && typeof user.data === 'object' && !Array.isArray(user.data)) {
+                const hasUserFields = user.id || user.email || user.name || user.username || user.role || user.roles;
+                if (!hasUserFields) user = user.data;
+            }
+
+            let role = null;
+            if (user) {
+                if (typeof user.role === 'string') role = user.role;
+                else if (user.role && typeof user.role === 'object' && typeof user.role.name === 'string') role = user.role.name;
+                else if (Array.isArray(user.roles) && user.roles.length > 0)
+                    role = typeof user.roles[0] === 'string' ? user.roles[0] : (user.roles[0]?.name ?? null);
+            }
+
+            return { token, user: user ? { ...user, role } : null };
+        },
+
+        async login(email, password) {
+            this.state.loading = true;
+            try {
+                const response = await Http.request(API.LOGIN, {
+                    method: 'POST',
+                    body: { email, password },
+                    includeAuth: false,
+                });
+
+                const rawText = await response.text();
+                let json = {};
+                try { json = rawText ? JSON.parse(rawText) : {}; }
+                catch (e) { json = {}; }
+
+                console.log('[Login] HTTP', response.status, 'Response:', json);
+
+                if (!response.ok) {
+                    throw new Error(json.message || json.error || `Login failed (HTTP ${response.status})`);
+                }
+
+                const { token, user } = this.extractPayload(json);
+                if (!token) {
+                    console.error('[Login] No token found. Full payload:', json);
+                    throw new Error('Login succeeded but no token was returned by the server.');
+                }
+
+                // Normalize: strip any "Bearer " prefix the server might have included
+                const cleanToken = String(token).replace(/^Bearer\s+/i, '').trim();
+
+                this.setSession(cleanToken, user);
+                return { ok: true };
+            } catch (err) {
+                console.error('[Login] Error:', err);
+                return { ok: false, error: err.message || 'Login failed.' };
+            } finally {
+                this.state.loading = false;
+            }
+        },
+
+        logout() {
+            this.clear();
+        },
+    };
+
+    /* ---- ChatStore ---- */
+    const ChatStore = {
+        state: createReactive({ messages: [], sending: false }),
+
+        get lastMessage() {
+            return this.state.messages[this.state.messages.length - 1];
+        },
+
+        async sendPrompt(prompt) {
+            const token = Http.getAuthToken();
+            if (!token) {
+                console.warn('[Chat] Sending prompt WITHOUT auth token — expect 401');
+            } else {
+                console.log('[Chat] Sending with token:', token.substring(0, 20) + '…');
+            }
+
+            const response = await Http.request(API.PROMPT, {
+                method: 'POST',
+                body: { prompt },
+                accept: 'application/json, application/pdf, application/octet-stream, */*',
+                includeAuth: true,
+            });
+
+            const contentType = (response.headers.get('Content-Type') || '').toLowerCase();
+
+            /* Binary response */
+            if (
+                contentType.includes('application/pdf') ||
+                contentType.includes('application/vnd.ms-excel') ||
+                contentType.includes('application/vnd.openxmlformats-officedocument') ||
+                contentType.includes('application/msword') ||
+                contentType.includes('application/zip') ||
+                contentType.includes('application/x-zip') ||
+                contentType.includes('application/octet-stream') ||
+                contentType.includes('application/x-rar') ||
+                contentType.includes('application/x-7z') ||
+                contentType.includes('application/x-tar') ||
+                contentType.includes('application/gzip') ||
+                contentType.startsWith('image/')
+            ) {
+                let filename = Utils.extractFilenameFromDisposition(response.headers.get('Content-Disposition')) || 'download';
+                if (filename === 'download') {
+                    filename = `download.${Utils.mimeToExtension(contentType)}`;
+                }
+                const blob = await response.blob();
+                const objectUrl = URL.createObjectURL(blob);
+                const ext = Utils.getFileExtension(filename) || Utils.mimeToExtension(contentType);
+                const info = BINARY_EXTENSIONS[ext] || { type: 'binary', icon: '📁', label: 'File', mime: contentType };
+                return {
+                    kind: 'binary',
+                    status: response.status,
+                    file: {
+                        url: objectUrl, type: info.type, icon: info.icon,
+                        label: info.label, mime: contentType,
+                        name: filename, size: blob.size,
+                    },
+                };
+            }
+
+            /* JSON response */
+            const data = await response.json();
+            return { kind: 'json', status: response.status, data };
+        },
+    };
+
+    /* ==========================================================
+     * RESPONSE PARSER
+     * ========================================================== */
+    class ResponseParser {
+    /**
+     * Recursively scan an object/array for pagination meta and links.
+     * Returns { meta, links } found at any depth.
+     */
+    static findPaginationData(node, depth = 0) {
+        if (!node || typeof node !== 'object' || depth > 10) {
+            return { meta: null, links: null };
+        }
+
+        let meta = null;
+        let links = null;
+
+        // Check if this node itself is a meta object
+        if (!Array.isArray(node)) {
+            const metaKeys = [
+                'current_page', 'currentPage', 'page', 'page_number', 'pageNumber',
+                'last_page', 'lastPage', 'total_pages', 'totalPages',
+                'per_page', 'perPage', 'page_size', 'pageSize',
+                'total', 'total_count', 'totalCount', 'count',
+                'from', 'to', 'start', 'end',
+                'has_more_pages', 'hasMorePages', 'has_more', 'hasMore',
+                'has_next', 'hasNext', 'has_previous', 'hasPrevious',
+                'next_page', 'nextPage', 'previous_page', 'previousPage',
+                'path', 'first_page', 'firstPage', 'last_page_url'
+            ];
+            const linkKeys = ['first', 'last', 'prev', 'next'];
+
+            const nodeKeys = Object.keys(node);
+            const hasMetaKeys = nodeKeys.some(k => metaKeys.includes(k));
+            const hasLinkKeys = nodeKeys.some(k => linkKeys.includes(k));
+
+            if (hasMetaKeys) {
+                meta = node;
+            } else if (hasLinkKeys) {
+                links = node;
+            }
+        }
+
+        // If node has explicit `meta` or `links` properties, use those
+        if (node.meta && typeof node.meta === 'object' && !meta) {
+            meta = node.meta;
+        }
+        if (node.links && typeof node.links === 'object' && !links) {
+            links = node.links;
+        }
+
+        // Recursively scan all properties
+        const children = Array.isArray(node) ? node : Object.values(node);
+        for (const child of children) {
+            if (child && typeof child === 'object') {
+                const found = this.findPaginationData(child, depth + 1);
+                if (!meta && found.meta) meta = found.meta;
+                if (!links && found.links) links = found.links;
+                if (meta && links) break;
+            }
+        }
+
+        return { meta, links };
+    }
+
+    /**
+     * Extract the main content payload, plus any pagination meta/links
+     * found anywhere in the response tree.
+     */
+    static extractPayloadAndMeta(response) {
+        if (!response || typeof response !== 'object') {
+            return { content: response, meta: null, links: null };
+        }
+
+        // First, find pagination data anywhere in the tree
+        const { meta, links } = this.findPaginationData(response);
+
+        // Now unwrap the content payload
+        let node = response;
+        let guard = 0;
+
+        while (guard++ < 10) {
+            if (!node || typeof node !== 'object' || Array.isArray(node)) break;
+
+            // Handle Laravel-style { data: [...] }
+            if (node.result !== undefined) { node = node.result; continue; }
+            if (node.payload !== undefined) { node = node.payload; continue; }
+            if (node.data !== undefined) { node = node.data; continue; }
+            if (node.content !== undefined && node.content !== null) { node = node.content; continue; }
+            if (node.items !== undefined) { node = node.items; continue; }
+
+            break;
+        }
+
+        // Handle the [records, links, meta] tuple pattern
+        if (Array.isArray(node) && node.length >= 1 && Array.isArray(node[0]) &&
+            (node[0].length === 0 || typeof node[0][0] === 'object') &&
+            node.slice(1).every(x => x === null || typeof x === 'object')) {
+            const records = node[0];
+            return { content: records, meta, links };
+        }
+
+        // If node is an object with data/items array
+        if (node && typeof node === 'object' && !Array.isArray(node)) {
+            if (Array.isArray(node.data)) {
+                node = node.data;
+            } else if (Array.isArray(node.items)) {
+                node = node.items;
+            }
+        }
+
+        return { content: node, meta, links };
+    }
+}
+
+    /* ==========================================================
+     * FILE DETECTOR
+     * ========================================================== */
+    class FileDetector {
+        static detect(value) {
+            if (!value) return null;
+
+            if (typeof value === 'string') {
+                if (!(value.startsWith('http://') || value.startsWith('https://') ||
+                      value.startsWith('/') || value.startsWith('data:'))) return null;
+
+                const ext = Utils.getFileExtension(value);
                 if (BINARY_EXTENSIONS[ext]) {
                     const info = BINARY_EXTENSIONS[ext];
                     return {
-                        url, type: info.type, icon: info.icon, label: info.label,
-                        mime: value.mime_type || value.mime || info.mime, name, size
+                        url: value, type: info.type, icon: info.icon, label: info.label, mime: info.mime,
+                        name: value.split('/').pop().split('?')[0] || `file.${ext}`, size: null,
                     };
                 }
-                return {
-                    url, type: 'binary', icon: '📁', label: 'File',
-                    mime: value.mime_type || value.mime || 'application/octet-stream', name, size
-                };
+                if (IMAGE_EXT_REGEX.test(value)) {
+                    return {
+                        url: value, type: 'image', icon: '🖼️', label: 'Image', mime: 'image/*',
+                        name: value.split('/').pop().split('?')[0] || 'image', size: null,
+                    };
+                }
+                return null;
             }
+
+            if (typeof value === 'object' && value !== null) {
+                const fileFields = [
+                    'file', 'file_url', 'url', 'download_url', 'download',
+                    'image', 'image_url', 'thumbnail', 'attachment', 'attachment_url',
+                    'document', 'document_url', 'archive', 'archive_url',
+                    'zip', 'zip_url', 'pdf', 'pdf_url', 'excel', 'excel_url',
+                ];
+
+                for (const field of fileFields) {
+                    const url = value[field];
+                    if (url && typeof url === 'string' &&
+                        (url.startsWith('http') || url.startsWith('/') || url.startsWith('data:'))) {
+                        const ext = Utils.getFileExtension(url);
+                        const name = value.name || value.filename || value.file_name ||
+                                     value.original_name || url.split('/').pop().split('?')[0] || 'file';
+                        const size = value.size || value.file_size || value.filesize || null;
+
+                        if (IMAGE_EXT_REGEX.test(url)) {
+                            return { url, type: 'image', icon: '🖼️', label: 'Image', mime: 'image/*', name, size };
+                        }
+                        if (BINARY_EXTENSIONS[ext]) {
+                            const info = BINARY_EXTENSIONS[ext];
+                            return {
+                                url, type: info.type, icon: info.icon, label: info.label,
+                                mime: value.mime_type || value.mime || info.mime, name, size,
+                            };
+                        }
+                        return {
+                            url, type: 'binary', icon: '📁', label: 'File',
+                            mime: value.mime_type || value.mime || 'application/octet-stream', name, size,
+                        };
+                    }
+                }
+
+                if (value.data && typeof value.data === 'string' && value.data.startsWith('data:')) {
+                    const match = value.data.match(/^data:([^;]+);/);
+                    const mime = match ? match[1] : 'application/octet-stream';
+                    return {
+                        url: value.data, type: 'binary', icon: '💾', label: 'Binary Data',
+                        mime, name: value.name || value.filename || 'file',
+                        size: value.size || null, isBase64: true,
+                    };
+                }
+            }
+            return null;
         }
-
-        if (value.data && typeof value.data === 'string' && value.data.startsWith('data:')) {
-            const match = value.data.match(/^data:([^;]+);/);
-            const mime = match ? match[1] : 'application/octet-stream';
-            return {
-                url: value.data, type: 'binary', icon: '💾', label: 'Binary Data',
-                mime, name: value.name || value.filename || 'file', size: value.size || null, isBase64: true
-            };
-        }
     }
 
-    return null;
-}
+    /* ==========================================================
+     * VIEW: CHAT
+     * ========================================================== */
+    const ChatView = {
+        els: {},
 
-function renderFileCard(file) {
-    const sizeText = file.size ? formatFileSize(file.size) : null;
-    const ext = getFileExtension(file.name || file.url) || 'bin';
+        mount() {
+            this.els.container = document.getElementById('chat-container');
+            this.els.input = document.getElementById('prompt-input');
+            this.els.sendBtn = document.getElementById('send-btn');
 
-    let iconClass = 'generic';
-    if (file.type === 'pdf') iconClass = 'pdf';
-    else if (file.type === 'excel') iconClass = 'excel';
-    else if (file.type === 'word') iconClass = 'word';
-    else if (file.type === 'zip') iconClass = 'zip';
-
-    const safeUrl = escapeHtml(file.url);
-    const safeName = escapeHtml(file.name || 'file');
-    const safeType = escapeHtml(file.type || 'binary');
-    const safeLabel = escapeHtml(file.label || 'File');
-    const safeMime = escapeHtml(file.mime || 'application/octet-stream');
-
-    const canPreview = ['image', 'pdf', 'excel', 'word', 'zip'].includes(file.type);
-
-    return `
-        <div class="binary-file-card">
-            <div class="binary-file-icon ${iconClass}">${file.icon || '📁'}</div>
-            <div class="binary-file-info">
-                <div class="binary-file-name" title="${safeName}">${safeName}</div>
-                <div class="binary-file-meta">
-                    <span class="size-badge">${ext.toUpperCase()}</span>
-                    <span>${safeLabel}</span>
-                    ${sizeText ? `<span>·</span><span>${sizeText}</span>` : ''}
-                </div>
-            </div>
-            <div class="binary-file-actions">
-                ${canPreview ? `
-                    <button onclick="previewFileResource('${safeUrl}', '${safeName}', '${safeType}', '${safeMime}')"
-                        class="text-xs px-3 py-2 rounded-lg border transition-colors font-medium"
-                        style="background: var(--bg-tertiary); color: var(--text-primary); border-color: var(--border-color);">
-                        👁 Preview
-                    </button>
-                ` : ''}
-                <a href="${safeUrl}" download="${safeName}"
-                    class="btn-primary text-xs px-3 py-2 rounded-lg font-medium inline-flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Download
-                </a>
-            </div>
-        </div>
-    `;
-}
-
-function renderInlineFileCard(file) {
-    const safeUrl = escapeHtml(file.url);
-    const safeName = escapeHtml(file.name || 'file');
-    const safeType = escapeHtml(file.type || 'binary');
-    const safeMime = escapeHtml(file.mime || 'application/octet-stream');
-    const ext = getFileExtension(file.name || file.url) || 'bin';
-
-    let iconClass = 'generic';
-    if (file.type === 'pdf') iconClass = 'pdf';
-    else if (file.type === 'excel') iconClass = 'excel';
-    else if (file.type === 'word') iconClass = 'word';
-    else if (file.type === 'zip') iconClass = 'zip';
-
-    const canPreview = ['image', 'pdf', 'excel', 'word', 'zip'].includes(file.type);
-
-    return `
-        <div class="flex items-center gap-2 p-1.5 rounded-lg"
-             style="background: var(--bg-tertiary); border: 1px solid var(--border-color); max-width: 240px;">
-            <div class="binary-file-icon ${iconClass}" style="width: 28px; height: 28px; font-size: 14px; border-radius: 8px; flex-shrink: 0;">
-                ${file.icon || '📁'}
-            </div>
-            <div class="flex-1 min-w-0">
-                <div class="text-[11px] font-medium truncate" style="color: var(--text-primary);" title="${safeName}">${safeName}</div>
-                <div class="text-[9px]" style="color: var(--text-muted);">${ext.toUpperCase()}</div>
-            </div>
-            <div class="flex gap-1 flex-shrink-0">
-                ${canPreview ? `
-                    <button onclick="previewFileResource('${safeUrl}', '${safeName}', '${safeType}', '${safeMime}')"
-                        class="p-1 rounded-md" style="color: var(--accent);" title="Preview">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    </button>
-                ` : ''}
-                <a href="${safeUrl}" download="${safeName}" class="p-1 rounded-md" style="color: var(--accent);" title="Download">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                </a>
-            </div>
-        </div>
-    `;
-}
-
-/* ============================================================
-   RENDER RESPONSE
-   ============================================================ */
-function renderResponse(data, action) {
-    let htmlContent = '';
-
-    if (action) {
-        htmlContent += `<div class="mb-3 text-xs font-medium inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
-            style="background: var(--badge-bg); color: var(--badge-text); border: 1px solid var(--badge-border);">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            Action: <code class="font-mono">${escapeHtml(action)}</code></div>`;
-    }
-
-    // Prefer message from nested result if present
-    const msg = data.message || (data.result && data.result.message);
-    if (msg) {
-        htmlContent += `<div class="mb-3 text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-2"
-            style="background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border);">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            ${escapeHtml(msg)}
-        </div>`;
-    }
-
-    const { content, meta } = extractPayloadAndMeta(data);
-
-    const topLevelFile = detectFileResource(content);
-
-    if (topLevelFile) {
-        htmlContent += renderFileCard(topLevelFile);
-    } else if (Array.isArray(content)) {
-        const allFiles = content.length > 0 && content.every(item => detectFileResource(item) !== null);
-        if (allFiles) {
-            htmlContent += `<div class="space-y-2 my-2">`;
-            content.forEach(item => {
-                const f = detectFileResource(item);
-                if (f) htmlContent += renderFileCard(f);
+            this.els.input.addEventListener('input', () => this.autoResize());
+            this.els.input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    Actions.sendPrompt();
+                }
             });
-            htmlContent += `</div>`;
-        } else {
-            htmlContent += parseRecursive(content);
-        }
-    } else if (content === undefined || content === null || (typeof content === 'object' && Object.keys(content).length === 0 && !Array.isArray(content))) {
-        htmlContent += `<div class="text-sm italic" style="color: var(--text-muted);">No data returned.</div>`;
-    } else {
-        htmlContent += parseRecursive(content);
-    }
+            this.els.sendBtn.addEventListener('click', () => Actions.sendPrompt());
+        },
 
-    if (meta) {
-        htmlContent += renderPagination(meta);
-    }
+        autoResize() {
+            const el = this.els.input;
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, TYPING_MAX_HEIGHT) + 'px';
+        },
 
-    htmlContent += `
-        <div class="mt-4 pt-3 border-t flex flex-wrap items-center gap-3" style="border-color: var(--border-color);">
-            <button onclick="toggleRawJson(this)" class="text-xs font-medium inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors"
-                style="background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-color);">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                <span class="raw-json-label">Show raw JSON</span>
-            </button>
-            <button onclick="exportFullResponse(this)" class="text-xs font-medium inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors"
-                style="background: var(--bg-tertiary); color: var(--accent); border: 1px solid var(--border-color);">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Export JSON
-            </button>
-        </div>
-        <div class="raw-json-container hidden mt-3">
-            <pre class="json-pre">${syntaxHighlightJson(data)}</pre>
-        </div>
-    `;
+        scrollToBottom() {
+            this.els.container.scrollTop = this.els.container.scrollHeight;
+        },
 
-    appendMessage(htmlContent, 'ai', false, true);
+        appendMessage({ content, sender, isError = false, isHtml = false, rawText = '' }) {
+            const isUser = sender === 'user';
+            const msg = document.createElement('div');
+            msg.className = `flex items-start gap-3 md:gap-4 msg-wrapper fade-in ${isUser ? 'flex-row-reverse' : ''}`;
 
-    const bubbles = chatContainer.querySelectorAll('.message-wrapper');
-    const lastBubble = bubbles[bubbles.length - 1]?.querySelector('.rounded-2xl');
-    if (lastBubble) {
-        lastBubble.dataset.rawJson = JSON.stringify(data);
-    }
-}
+            let bubbleClass = isUser
+                ? 'bg-indigo-600 text-white'
+                : (isError
+                    ? 'bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
+                    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200');
 
-function toggleRawJson(btn) {
-    const wrapper = btn.closest('.message-wrapper');
-    const bubble = wrapper.querySelector('.rounded-2xl');
-    const container = bubble.querySelector('.raw-json-container');
-    const label = btn.querySelector('.raw-json-label');
-    if (container.classList.contains('hidden')) {
-        container.classList.remove('hidden');
-        if (label) label.textContent = 'Hide raw JSON';
-    } else {
-        container.classList.add('hidden');
-        if (label) label.textContent = 'Show raw JSON';
-    }
-}
+            const avatar = isUser
+                ? `<div class="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-500 to-slate-700 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-md">U</div>`
+                : `<div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-lg shadow-indigo-500/20">AI</div>`;
 
-function exportFullResponse(btn) {
-    const wrapper = btn.closest('.message-wrapper');
-    const bubble = wrapper.querySelector('.rounded-2xl');
-    const raw = bubble.dataset.rawJson;
-    if (!raw) { alert('No raw JSON available'); return; }
-    try {
-        const data = JSON.parse(raw);
-        downloadJson(data, `ai-response-${Date.now()}.json`);
-    } catch (e) {
-        alert('Failed to parse JSON');
-    }
-}
+            const aiActions = !isUser ? this.buildAiActions() : '';
+            const userActions = (isUser && rawText) ? this.buildUserActions(rawText) : '';
 
-/* ============================================================
-   PAGINATION
-   ============================================================ */
-function renderPagination(meta) {
-    if (!meta) return '';
-    const current = meta.current_page || 1;
-    const last = meta.last_page || 1;
-    const from = meta.from ?? 0;
-    const to = meta.to ?? 0;
-    const total = meta.total ?? 0;
-    const perPage = meta.per_page || 10;
+            const bubbleContent = isHtml ? content : `<p>${Utils.escapeHtml(content)}</p>`;
 
-    let pages = [];
-    if (last <= 7) {
-        for (let i = 1; i <= last; i++) pages.push(i);
-    } else {
-        pages.push(1);
-        if (current > 3) pages.push('...');
-        for (let i = Math.max(2, current - 1); i <= Math.min(last - 1, current + 1); i++) pages.push(i);
-        if (current < last - 2) pages.push('...');
-        pages.push(last);
-    }
-
-    let buttonsHtml = '';
-    pages.forEach(p => {
-        if (p === '...') {
-            buttonsHtml += `<span class="pagination-ellipsis">…</span>`;
-        } else {
-            const active = p === current ? 'active' : '';
-            buttonsHtml += `<button class="pagination-btn ${active}" onclick="goToPage(${p})">${p}</button>`;
-        }
-    });
-
-    return `
-        <div class="pagination-container">
-            <div class="pagination-info">
-                Showing <strong>${from}</strong>–<strong>${to}</strong> of <strong>${total}</strong> entries
-                · Page <strong>${current}</strong> of <strong>${last}</strong>
-                · <span style="color: var(--text-muted);">${perPage} per page</span>
-            </div>
-            <div class="pagination-controls">
-                <button class="pagination-btn" ${current <= 1 ? 'disabled' : ''} onclick="goToPage(${current - 1})" title="Previous">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                </button>
-                ${buttonsHtml}
-                <button class="pagination-btn" ${current >= last ? 'disabled' : ''} onclick="goToPage(${current + 1})" title="Next">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-function goToPage(page) {
-    const prompt = `Show page ${page} of the previous data`;
-    promptInput.value = prompt;
-    window.sendPrompt();
-}
-
-/* ============================================================
-   PREVIEW MODAL
-   ============================================================ */
-let currentPreviewUrl = '', currentPreviewName = '', currentPreviewType = '', currentPreviewMime = '';
-
-function previewFileResource(url, name, type, mime) {
-    currentPreviewUrl = url;
-    currentPreviewName = name;
-    currentPreviewType = type;
-    currentPreviewMime = mime || '';
-
-    const modal = document.getElementById('preview-modal');
-    const content = document.getElementById('preview-content');
-    const title = document.getElementById('preview-title');
-    const downloadBtn = document.getElementById('preview-download-btn');
-
-    title.textContent = name;
-    downloadBtn.style.display = 'inline-flex';
-
-    let fullUrl = url;
-    if (url.startsWith('/')) fullUrl = window.location.origin + url;
-
-    if (type === 'image') {
-        content.innerHTML = `
-            <div class="flex items-center justify-center" style="min-height: 300px;">
-                <img src="${escapeHtml(url)}" alt="${escapeHtml(name)}"
-                    class="max-h-[70vh] w-full object-contain rounded-lg border"
-                    style="border-color: var(--border-color);"
-                    onerror="this.outerHTML='<div class=&quot;p-12 text-center&quot; style=&quot;color: var(--text-muted);&quot;><div class=&quot;text-6xl mb-4&quot;>🖼️</div><p class=&quot;text-sm&quot;>Image could not be loaded.</p></div>'" />
-            </div>
-        `;
-    } else if (type === 'pdf') {
-        content.innerHTML = `
-            <div style="height: 70vh; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);">
-                <iframe src="${escapeHtml(fullUrl)}" style="width: 100%; height: 100%; border: none;" title="${escapeHtml(name)}"></iframe>
-            </div>
-            <p class="text-xs mt-2 text-center" style="color: var(--text-muted);">
-                If the PDF doesn't display, your browser may not support embedded previews. Use the download button.
-            </p>
-        `;
-    } else if (type === 'excel' || type === 'word') {
-        const icon = type === 'excel' ? '📊' : '📝';
-        const label = type === 'excel' ? 'Excel Spreadsheet' : 'Word Document';
-        content.innerHTML = `
-            <div class="p-10 text-center" style="color: var(--text-muted);">
-                <div class="text-6xl mb-4">${icon}</div>
-                <p class="text-sm font-semibold mb-1" style="color: var(--text-primary);">${label} Preview</p>
-                <p class="text-xs mb-4">This file type cannot be previewed directly in the browser.</p>
-                <p class="text-xs">Use the <strong>Download</strong> button below to open it in your local application.</p>
-            </div>
-        `;
-    } else if (type === 'zip') {
-        content.innerHTML = `
-            <div class="p-10 text-center" style="color: var(--text-muted);">
-                <div class="text-6xl mb-4">📦</div>
-                <p class="text-sm font-semibold mb-1" style="color: var(--text-primary);">ZIP Archive</p>
-                <p class="text-xs mb-4">Archive contents cannot be previewed directly.</p>
-                <p class="text-xs">Download the file to extract and view its contents.</p>
-            </div>
-        `;
-    } else if (type === 'binary' || type === 'generic') {
-        if (currentPreviewMime && (currentPreviewMime.startsWith('image/') || currentPreviewMime === 'application/pdf')) {
-            content.innerHTML = `
-                <div style="height: 70vh; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);">
-                    <iframe src="${escapeHtml(fullUrl)}" style="width: 100%; height: 100%; border: none;"></iframe>
+            msg.innerHTML = `
+                ${avatar}
+                <div class="flex flex-col max-w-3xl w-full ${isUser ? 'items-end' : 'items-start'}">
+                    <div class="${bubbleClass} rounded-2xl p-4 md:p-5 w-full text-sm leading-relaxed overflow-hidden shadow-sm transition-colors">
+                        ${bubbleContent}
+                    </div>
+                    ${aiActions}
+                    ${userActions}
                 </div>
             `;
-        } else {
-            content.innerHTML = `
-                <div class="p-10 text-center" style="color: var(--text-muted);">
-                    <div class="text-6xl mb-4">📁</div>
-                    <p class="text-sm font-semibold mb-1" style="color: var(--text-primary);">Binary File</p>
-                    <p class="text-xs mb-4">Preview is not available for this file type.</p>
-                    <p class="text-xs">Download to open with a compatible application.</p>
-                </div>
-            `;
-        }
-    } else {
-        content.innerHTML = `
-            <div class="p-10 text-center" style="color: var(--text-muted);">
-                <div class="text-6xl mb-4">📄</div>
-                <p class="text-sm">Preview not available. Please download.</p>
-            </div>
-        `;
-    }
 
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-}
-
-function previewAttachment(url, name, type) {
-    let mappedType = type;
-    let mime = '';
-    if (type === 'image') mime = 'image/*';
-    else if (type === 'zip') mime = 'application/zip';
-    else if (type === 'doc') mappedType = 'pdf';
-    previewFileResource(url, name, mappedType, mime);
-}
-
-function closePreviewModal() {
-    const m = document.getElementById('preview-modal');
-    m.classList.add('hidden'); m.classList.remove('flex');
-    document.getElementById('preview-content').innerHTML = '';
-    currentPreviewUrl = '';
-    currentPreviewName = '';
-    currentPreviewType = '';
-    currentPreviewMime = '';
-}
-
-function downloadPreviewFile() {
-    if (!currentPreviewUrl) return;
-    const a = document.createElement('a');
-    a.href = currentPreviewUrl;
-    a.download = currentPreviewName || 'download';
-    a.click();
-}
-
-/* ============================================================
-   RECURSIVE PARSER
-   ============================================================ */
-function parseRecursive(item, depth = 0) {
-    if (item === null || item === undefined) return '<span class="italic" style="color: var(--text-muted);">N/A</span>';
-    if (typeof item !== 'object') {
-        if (typeof item === 'boolean') {
-            return `<span style="color: ${item ? '#059669' : '#dc2626'}; font-weight: 500;">${item ? '✓ true' : '✗ false'}</span>`;
-        }
-        if (typeof item === 'number') {
-            return `<span style="color: #d97706; font-weight: 500;">${item.toLocaleString()}</span>`;
-        }
-        return `<span>${escapeHtml(String(item))}</span>`;
-    }
-
-    if (Array.isArray(item)) {
-        if (item.length === 0) return '<span class="italic" style="color: var(--text-muted);">Empty list</span>';
-        if (typeof item[0] === 'object' && item[0] !== null && !Array.isArray(item[0])) {
-            return buildTableFromArray(item, depth);
-        }
-        let html = '<ul class="list-disc pl-5 space-y-1 my-2">';
-        item.forEach(subItem => { html += `<li class="text-sm">${parseRecursive(subItem, depth + 1)}</li>`; });
-        html += '</ul>';
-        return html;
-    }
-
-    let html = '<div class="space-y-2 my-2 text-sm">';
-    for (let key in item) {
-        if (!Object.prototype.hasOwnProperty.call(item, key)) continue;
-        let val = item[key];
-        let formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
-        // Skip noisy wrapper keys already handled
-        if (['status', 'success', 'exception', 'links', 'meta', 'current_page', 'last_page', 'per_page', 'from', 'to', 'path', 'first', 'prev', 'next'].includes(key)) continue;
-
-        if (Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && val[0] !== null) {
-            html += `<div class="border-l-2 pl-3 py-1" style="border-color: var(--accent);">
-                <div class="nested-badge">📊 ${escapeHtml(formattedKey)} (${val.length} items)</div>
-                <div>${buildTableFromArray(val, depth + 1)}</div>
-            </div>`;
-        } else {
-            html += `<div class="border-l-2 pl-3 py-0.5" style="border-color: var(--accent);">
-                <strong style="color: var(--text-secondary);">${escapeHtml(formattedKey)}:</strong>
-                <div class="mt-1">${parseRecursive(val, depth + 1)}</div>
-            </div>`;
-        }
-    }
-    html += '</div>';
-    return html;
-}
-
-/* ============================================================
-   BUILD TABLE (N-TH LEVEL)
-   ============================================================ */
-function buildTableFromArray(arr, depth = 0) {
-    if (!arr || arr.length === 0) return '<span class="italic" style="color: var(--text-muted);">Empty list</span>';
-
-    if (Array.isArray(arr[0])) {
-        return arr.map(sub => parseRecursive(sub, depth + 1)).join('');
-    }
-
-    const keys = [...new Set(arr.flatMap(obj => Object.keys(obj)))];
-
-    let html = `<div class="table-responsive" style="margin-left: ${depth > 0 ? '4px' : '0'};">
-        <table><thead><tr>`;
-    keys.forEach(key => {
-        let title = key.replace(/_/g, ' ');
-        html += `<th>${escapeHtml(title)}</th>`;
-    });
-    html += `</tr></thead><tbody>`;
-
-    arr.forEach((row) => {
-        html += `<tr>`;
-        keys.forEach(key => {
-            let val = row[key];
-            if (val === undefined || val === null) {
-                html += `<td><span class="italic" style="color: var(--text-muted);">—</span></td>`;
-            } else if (typeof val === 'object' && !Array.isArray(val)) {
-                const fileRes = detectFileResource(val);
-                if (fileRes) {
-                    html += `<td>${renderInlineFileCard(fileRes)}</td>`;
-                } else {
-                    html += `<td>${parseRecursive(val, depth + 1)}</td>`;
-                }
-            } else if (Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && val[0] !== null) {
-                html += `<td>
-                    <div class="nested-badge">📊 ${val.length} rows</div>
-                    ${buildTableFromArray(val, depth + 1)}
-                </td>`;
-            } else if (typeof val === 'boolean') {
-                html += `<td><span style="color: ${val ? '#059669' : '#dc2626'}; font-weight: 500;">${val ? '✓ true' : '✗ false'}</span></td>`;
-            } else if (typeof val === 'number') {
-                html += `<td><span style="color: #d97706; font-weight: 500;">${val.toLocaleString()}</span></td>`;
-            } else if (typeof val === 'string') {
-                const fileRes = detectFileResource(val);
-                if (fileRes) {
-                    html += `<td>${renderInlineFileCard(fileRes)}</td>`;
-                } else if (val.startsWith('http://') || val.startsWith('https://')) {
-                    html += `<td><a href="${escapeHtml(val)}" target="_blank" class="hover:underline truncate block max-w-[200px]" style="color: var(--accent);" title="${escapeHtml(val)}">${escapeHtml(val.length > 40 ? val.substring(0, 40) + '…' : val)}</a></td>`;
-                } else {
-                    html += `<td>${escapeHtml(String(val))}</td>`;
-                }
-            } else {
-                html += `<td>${escapeHtml(String(val))}</td>`;
+            const bubble = msg.querySelector('.rounded-2xl');
+            if (bubble) {
+                bubble.dataset.rawContent = isHtml ? content : Utils.escapeHtml(content);
+                bubble.dataset.isHtml = isHtml ? 'true' : 'false';
             }
-        });
-        html += `</tr>`;
-    });
 
-    html += `</tbody></table></div>`;
-    return html;
-}
+            this.els.container.appendChild(msg);
+            this.scrollToBottom();
+        },
 
-/* ============================================================
-   JSON SYNTAX HIGHLIGHT
-   ============================================================ */
-function syntaxHighlightJson(obj) {
-    let json = JSON.stringify(obj, null, 2);
-    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-        let cls = 'json-number';
-        if (/^"/.test(match)) {
-            if (/:$/.test(match)) cls = 'json-key';
-            else cls = 'json-string';
-        } else if (/true|false/.test(match)) cls = 'json-boolean';
-        else if (/null/.test(match)) cls = 'json-null';
-        return '<span class="' + cls + '">' + match + '</span>';
-    });
-}
+        buildAiActions() {
+            return `
+                <div class="msg-actions flex items-center gap-1 mt-2">
+                    <button data-action="copy-response" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" title="Copy response">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    </button>
+                    <button data-action="export-response" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" title="Export JSON">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </button>
+                </div>
+            `;
+        },
 
-/* ============================================================
-   ESCAPE
-   ============================================================ */
-function escapeHtml(text) {
-    if (text === null || text === undefined) return '';
-    return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
+        buildUserActions(text) {
+            const t = Utils.escapeForAttribute(text);
+            return `
+                <div class="msg-actions flex items-center gap-1 mt-1 justify-end">
+                    <button data-action="copy-prompt" data-text="${t}" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" title="Copy prompt">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    </button>
+                    <button data-action="edit-prompt" data-text="${t}" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" title="Edit prompt">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    </button>
+                    <button data-action="pin-prompt" data-text="${t}" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" title="Pin prompt">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                    </button>
+                    <button data-action="resubmit-prompt" data-text="${t}" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors" title="Re-submit">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            `;
+        },
 
-/* ============================================================
-   SEND PROMPT
-   ============================================================ */
-async function sendPrompt() {
-    const prompt = promptInput.value.trim();
-    if (!prompt) return;
+        showLoading() {
+            const id = 'loading-' + Date.now();
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'flex items-start gap-3 md:gap-4 fade-in';
+            div.innerHTML = `
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-lg shadow-indigo-500/20">AI</div>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center gap-2 shadow-sm transition-colors">
+                    <span class="typing-dot bg-indigo-500"></span><span class="typing-dot bg-indigo-500"></span><span class="typing-dot bg-indigo-500"></span>
+                </div>
+            `;
+            this.els.container.appendChild(div);
+            this.scrollToBottom();
+            return id;
+        },
 
-    sendBtn.disabled = true;
-    appendMessage(escapeHtml(prompt), 'user', false, true, prompt);
-    promptInput.value = '';
-    promptInput.style.height = 'auto';
+        removeLoading(id) {
+            document.getElementById(id)?.remove();
+        },
 
-    const parsedJson = tryParseJson(prompt);
-    if (parsedJson) {
-        const loadingId = showLoadingIndicator();
-        setTimeout(() => {
-            removeLoadingIndicator(loadingId);
-            renderResponse(parsedJson, null);
-            sendBtn.disabled = false;
-            promptInput.focus();
-        }, 300);
-        return;
-    }
+        setSending(state) {
+            this.els.sendBtn.disabled = state;
+            ChatStore.state.sending = state;
+        },
+    };
 
-    const loadingId = showLoadingIndicator();
-    try {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        const headers = { 'Accept': 'application/json, application/pdf, application/octet-stream, */*' };
-        if (csrfToken) headers['X-CSRF-TOKEN'] = csrfToken;
-        const authToken = getAuthToken();
-        if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+    /* ==========================================================
+     * RENDERERS
+     * ========================================================== */
+    const Renderers = {
+        fileCard(file) {
+            const sizeText = file.size ? Utils.formatFileSize(file.size) : null;
+            const ext = Utils.getFileExtension(file.name || file.url) || 'bin';
 
-        const response = await fetch('/api/ai/prompt', {
-            method: 'POST',
-            headers: { ...headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt })
-        });
+            let iconClass = 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400';
+            if (file.type === 'pdf') iconClass = 'bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300';
+            else if (file.type === 'excel') iconClass = 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300';
+            else if (file.type === 'word') iconClass = 'bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300';
+            else if (file.type === 'zip') iconClass = 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300';
 
-        const contentType = (response.headers.get('Content-Type') || '').toLowerCase();
+            const safeUrl = Utils.escapeHtml(file.url);
+            const safeName = Utils.escapeHtml(file.name || 'file');
+            const safeType = Utils.escapeHtml(file.type || 'binary');
+            const safeLabel = Utils.escapeHtml(file.label || 'File');
+            const safeMime = Utils.escapeHtml(file.mime || 'application/octet-stream');
+            const canPreview = ['image', 'pdf', 'excel', 'word', 'zip'].includes(file.type);
 
-        // CASE 1: Binary file response
-        if (
-            contentType.includes('application/pdf') ||
-            contentType.includes('application/vnd.ms-excel') ||
-            contentType.includes('application/vnd.openxmlformats-officedocument') ||
-            contentType.includes('application/msword') ||
-            contentType.includes('application/zip') ||
-            contentType.includes('application/x-zip') ||
-            contentType.includes('application/octet-stream') ||
-            contentType.includes('application/x-rar') ||
-            contentType.includes('application/x-7z') ||
-            contentType.includes('application/x-tar') ||
-            contentType.includes('application/gzip') ||
-            contentType.startsWith('image/')
-        ) {
-            removeLoadingIndicator(loadingId);
+            return `
+                <div class="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all my-2">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 ${iconClass}">${file.icon || '📁'}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate" title="${safeName}">${safeName}</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-2 flex-wrap mt-0.5">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50 text-[10px] font-semibold">${ext.toUpperCase()}</span>
+                            <span>${safeLabel}</span>
+                            ${sizeText ? `<span>·</span><span>${sizeText}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        ${canPreview ? `<button data-action="preview-file" data-url="${safeUrl}" data-name="${safeName}" data-type="${safeType}" data-mime="${safeMime}" class="text-xs px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-medium">👁 Preview</button>` : ''}
+                        <a href="${safeUrl}" download="${safeName}" class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-2 rounded-lg font-medium shadow-sm transition-all">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Download
+                        </a>
+                    </div>
+                </div>
+            `;
+        },
 
-            let filename = extractFilenameFromDisposition(response.headers.get('Content-Disposition')) || 'download';
-            if (!filename || filename === 'download') filename = filenameWithExtensionFromMime(contentType, filename);
+        inlineFileCard(file) {
+            const safeUrl = Utils.escapeHtml(file.url);
+            const safeName = Utils.escapeHtml(file.name || 'file');
+            const safeType = Utils.escapeHtml(file.type || 'binary');
+            const safeMime = Utils.escapeHtml(file.mime || 'application/octet-stream');
+            const ext = Utils.getFileExtension(file.name || file.url) || 'bin';
 
-            const blob = await response.blob();
-            const objectUrl = URL.createObjectURL(blob);
+            let iconClass = 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400';
+            if (file.type === 'pdf') iconClass = 'bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300';
+            else if (file.type === 'excel') iconClass = 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300';
+            else if (file.type === 'word') iconClass = 'bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300';
+            else if (file.type === 'zip') iconClass = 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300';
 
-            const ext = getFileExtension(filename) || mimeToExtension(contentType);
-            const binaryInfo = BINARY_EXTENSIONS[ext] || { type: 'binary', icon: '📁', label: 'File', mime: contentType };
+            const canPreview = ['image', 'pdf', 'excel', 'word', 'zip'].includes(file.type);
 
-            const fileRes = {
-                url: objectUrl, type: binaryInfo.type, icon: binaryInfo.icon,
-                label: binaryInfo.label, mime: contentType, name: filename, size: blob.size
+            return `
+                <div class="flex items-center gap-2 p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 max-w-[240px]">
+                    <div class="w-7 h-7 rounded-md flex items-center justify-center text-sm shrink-0 ${iconClass}">${file.icon || '📁'}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-[11px] font-medium text-slate-700 dark:text-slate-300 truncate" title="${safeName}">${safeName}</div>
+                        <div class="text-[9px] text-slate-400 dark:text-slate-500">${ext.toUpperCase()}</div>
+                    </div>
+                    <div class="flex gap-1 shrink-0">
+                        ${canPreview ? `<button data-action="preview-file" data-url="${safeUrl}" data-name="${safeName}" data-type="${safeType}" data-mime="${safeMime}" class="p-1 rounded-md text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30" title="Preview"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button>` : ''}
+                        <a href="${safeUrl}" download="${safeName}" class="p-1 rounded-md text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30" title="Download"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg></a>
+                    </div>
+                </div>
+            `;
+        },
+
+        parseRecursive(item, depth = 0) {
+            if (item === null || item === undefined) return '<span class="italic text-slate-400 dark:text-slate-500">N/A</span>';
+
+            if (typeof item !== 'object') {
+                if (typeof item === 'boolean') return `<span class="${item ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'} font-medium">${item ? '✓ true' : '✗ false'}</span>`;
+                if (typeof item === 'number') return `<span class="text-amber-600 dark:text-amber-400 font-medium">${item.toLocaleString()}</span>`;
+                return `<span>${Utils.escapeHtml(String(item))}</span>`;
+            }
+
+            if (Array.isArray(item)) {
+                if (item.length === 0) return '<span class="italic text-slate-400 dark:text-slate-500">Empty list</span>';
+                if (typeof item[0] === 'object' && item[0] !== null && !Array.isArray(item[0])) {
+                    return this.table(item, depth);
+                }
+                let html = '<ul class="list-disc pl-5 space-y-1 my-2">';
+                item.forEach(sub => { html += `<li class="text-sm">${this.parseRecursive(sub, depth + 1)}</li>`; });
+                return html + '</ul>';
+            }
+
+            let html = '<div class="space-y-2 my-2 text-sm">';
+            for (const key in item) {
+                if (!Object.prototype.hasOwnProperty.call(item, key)) continue;
+                const val = item[key];
+                const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                if (['status','success','exception','links','meta','current_page','last_page','per_page','from','to','path','first','prev','next'].includes(key)) continue;
+
+                if (Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && val[0] !== null) {
+                    html += `<div class="border-l-2 border-indigo-400 dark:border-indigo-600 pl-3 py-1">
+                        <div class="inline-flex items-center gap-1 text-[10px] bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50 px-2 py-0.5 rounded-full font-semibold tracking-wide mb-1">📊 ${Utils.escapeHtml(formattedKey)} (${val.length} items)</div>
+                        <div>${this.table(val, depth + 1)}</div>
+                    </div>`;
+                } else {
+                    html += `<div class="border-l-2 border-indigo-400 dark:border-indigo-600 pl-3 py-0.5">
+                        <strong class="text-slate-500 dark:text-slate-400">${Utils.escapeHtml(formattedKey)}:</strong>
+                        <div class="mt-1">${this.parseRecursive(val, depth + 1)}</div>
+                    </div>`;
+                }
+            }
+            return html + '</div>';
+        },
+
+        table(arr, depth = 0) {
+            if (!arr || arr.length === 0) return '<span class="italic text-slate-400 dark:text-slate-500">Empty list</span>';
+            if (Array.isArray(arr[0])) return arr.map(sub => this.parseRecursive(sub, depth + 1)).join('');
+
+            const keys = [...new Set(arr.flatMap(obj => Object.keys(obj)))];
+
+            let html = `<div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm my-2" style="margin-left: ${depth > 0 ? '4px' : '0'};">
+                <table class="w-full border-collapse text-xs"><thead><tr class="bg-slate-50 dark:bg-slate-800/50">`;
+
+            keys.forEach(key => {
+                const title = key.replace(/_/g, ' ');
+                html += `<th class="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 bg-slate-50 dark:bg-slate-800/50">${Utils.escapeHtml(title)}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            arr.forEach((row, idx) => {
+                const bg = idx % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50/50 dark:bg-slate-800/20';
+                html += `<tr class="${bg} hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors">`;
+                keys.forEach(key => {
+                    const val = row[key];
+                    if (val === undefined || val === null) {
+                        html += `<td class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 align-top"><span class="italic text-slate-400 dark:text-slate-500">—</span></td>`;
+                    } else if (typeof val === 'object' && !Array.isArray(val)) {
+                        const file = FileDetector.detect(val);
+                        if (file) html += `<td class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 align-top">${this.inlineFileCard(file)}</td>`;
+                        else html += `<td class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 align-top">${this.parseRecursive(val, depth + 1)}</td>`;
+                    } else if (Array.isArray(val) && val.length > 0 && typeof val[0] === 'object' && val[0] !== null) {
+                        html += `<td class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 align-top"><div class="inline-flex items-center gap-1 text-[10px] bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50 px-2 py-0.5 rounded-full font-semibold tracking-wide mb-1">📊 ${val.length} rows</div>${this.table(val, depth + 1)}</td>`;
+                    } else if (typeof val === 'boolean') {
+                        html += `<td class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 align-top"><span class="${val ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'} font-medium">${val ? '✓ true' : '✗ false'}</span></td>`;
+                    } else if (typeof val === 'number') {
+                        html += `<td class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 align-top"><span class="text-amber-600 dark:text-amber-400 font-medium">${val.toLocaleString()}</span></td>`;
+                    } else if (typeof val === 'string') {
+                        const file = FileDetector.detect(val);
+                        if (file) html += `<td class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 align-top">${this.inlineFileCard(file)}</td>`;
+                        else if (val.startsWith('http://') || val.startsWith('https://'))
+                            html += `<td class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 align-top"><a href="${Utils.escapeHtml(val)}" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline truncate block max-w-[200px]" title="${Utils.escapeHtml(val)}">${Utils.escapeHtml(val.length > 40 ? val.substring(0, 40) + '…' : val)}</a></td>`;
+                        else html += `<td class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 align-top">${Utils.escapeHtml(String(val))}</td>`;
+                    } else {
+                        html += `<td class="px-3 py-2 border-b border-slate-200 dark:border-slate-800 align-top">${Utils.escapeHtml(String(val))}</td>`;
+                    }
+                });
+                html += '</tr>';
+            });
+
+            return html + '</tbody></table></div>';
+        },
+
+        pagination(meta) {
+            if (!meta) return '';
+          const current =
+                meta.current_page ??
+                meta.currentPage ??
+                meta.page ??
+                meta.page_number ??
+                meta.pageNumber ??
+                meta.pageno ??
+                meta.pageNo ??
+                meta.current ??
+                1;
+
+            const last =
+                meta.last_page ??
+                meta.lastPage ??
+                meta.total_pages ??
+                meta.totalPages ??
+                meta.pages ??
+                1;
+
+            const from =
+                meta.from ??
+                meta.start ??
+                meta.start_index ??
+                meta.startIndex ??
+                meta.offset ??
+                0;
+
+            const to =
+                meta.to ??
+                meta.end ??
+                meta.end_index ??
+                meta.endIndex ??
+                0;
+
+            const total =
+                meta.total ??
+                meta.total_count ??
+                meta.totalCount ??
+                meta.count ??
+                meta.records_total ??
+                meta.recordsTotal ??
+                0;
+
+            const perPage =
+                meta.per_page ??
+                meta.perPage ??
+                meta.page_size ??
+                meta.pageSize ??
+                meta.limit ??
+                meta.items_per_page ??
+                meta.itemsPerPage ??
+                meta.size ??
+                10;
+
+            const hasMore =
+                meta.has_more_pages ??
+                meta.hasMorePages ??
+                meta.has_more ??
+                meta.hasMore ??
+                meta.has_next ??
+                meta.hasNext ??
+                meta.next_page !== null ??
+                meta.nextPage !== null ??
+                false;
+
+            const hasPrevious =
+                meta.has_previous_pages ??
+                meta.hasPreviousPages ??
+                meta.has_previous ??
+                meta.hasPrevious ??
+                meta.has_prev ??
+                meta.hasPrev ??
+                meta.prev_page !== null ??
+                meta.previousPage !== null ??
+                current > 1;
+
+            const nextPage =
+                meta.next_page ??
+                meta.nextPage ??
+                meta.next ??
+                null;
+
+            const previousPage =
+                meta.previous_page ??
+                meta.previousPage ??
+                meta.prev_page ??
+                meta.prevPage ??
+                meta.previous ??
+                null;
+
+            const firstPage =
+                meta.first_page ??
+                meta.firstPage ??
+                1;
+
+            const lastPage =
+                meta.last_page ??
+                meta.lastPage ??
+                meta.total_pages ??
+                meta.totalPages ??
+                1;
+
+            let pages = [];
+            if (last <= 7) {
+                for (let i = 1; i <= last; i++) pages.push(i);
+            } else {
+                pages.push(1);
+                if (current > 3) pages.push('...');
+                for (let i = Math.max(2, current - 1); i <= Math.min(last - 1, current + 1); i++) pages.push(i);
+                if (current < last - 2) pages.push('...');
+                pages.push(last);
+            }
+
+            let buttonsHtml = '';
+            pages.forEach(p => {
+                if (p === '...') buttonsHtml += `<span class="px-1 text-slate-400 dark:text-slate-600">…</span>`;
+                else {
+                    const active = p === current
+                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700 hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400';
+                    buttonsHtml += `<button data-action="goto-page" data-page="${p}" class="min-w-[32px] h-8 px-2 rounded-lg border text-xs font-medium transition-colors ${active}">${p}</button>`;
+                }
+            });
+
+            return `
+                <div class="flex flex-wrap items-center justify-between gap-3 mt-3 p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-500 dark:text-slate-400 transition-colors">
+                    <div>Showing <strong>${from}</strong>–<strong>${to}</strong> of <strong>${total}</strong> entries · Page <strong>${current}</strong> of <strong>${last}</strong> · <span class="text-slate-400 dark:text-slate-600">${perPage} per page</span></div>
+                    <div class="flex items-center gap-1 flex-wrap">
+                        <button data-action="goto-page" data-page="${current - 1}" class="min-w-[32px] h-8 px-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-40 disabled:cursor-not-allowed hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" ${current <= 1 ? 'disabled' : ''}>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        ${buttonsHtml}
+                        <button data-action="goto-page" data-page="${current + 1}" class="min-w-[32px] h-8 px-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-40 disabled:cursor-not-allowed hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" ${current >= last ? 'disabled' : ''}>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        },
+
+        response(data, action) {
+            let html = '';
+
+            if (action) {
+                html += `<div class="mb-3 text-xs font-medium inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Action: <code class="font-mono">${Utils.escapeHtml(action)}</code></div>`;
+            }
+
+            const msg = data.message || (data.result && data.result.message);
+            if (msg) {
+                html += `<div class="mb-3 text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    ${Utils.escapeHtml(msg)}
+                </div>`;
+            }
+
+            const { content, meta } = ResponseParser.extractPayloadAndMeta(data);
+            const topFile = FileDetector.detect(content);
+
+            if (topFile) {
+                html += this.fileCard(topFile);
+            } else if (Array.isArray(content)) {
+                const allFiles = content.length > 0 && content.every(item => FileDetector.detect(item) !== null);
+                if (allFiles) {
+                    html += `<div class="space-y-2 my-2">`;
+                    content.forEach(item => {
+                        const f = FileDetector.detect(item);
+                        if (f) html += this.fileCard(f);
+                    });
+                    html += `</div>`;
+                } else {
+                    html += this.parseRecursive(content);
+                }
+            } else if (content === undefined || content === null ||
+                (typeof content === 'object' && Object.keys(content).length === 0 && !Array.isArray(content))) {
+                html += `<div class="text-sm italic text-slate-400 dark:text-slate-500">No data returned.</div>`;
+            } else {
+                html += this.parseRecursive(content);
+            }
+
+            if (meta) html += this.pagination(meta);
+
+            html += `
+                <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-3">
+                    <button data-action="toggle-raw" class="text-xs font-medium inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                        <span class="raw-json-label">Show raw JSON</span>
+                    </button>
+                    <button data-action="export-full" class="text-xs font-medium inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Export JSON
+                    </button>
+                </div>
+                <div class="raw-json-container hidden mt-3">
+                    <pre class="bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-[11px] leading-relaxed overflow-x-auto font-mono text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">${this.syntaxHighlight(data)}</pre>
+                </div>
+            `;
+
+            return html;
+        },
+
+        syntaxHighlight(obj) {
+            let json = JSON.stringify(obj, null, 2);
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+                let cls = 'json-number';
+                if (/^"/.test(match)) cls = /:$/.test(match) ? 'json-key' : 'json-string';
+                else if (/true|false/.test(match)) cls = 'json-boolean';
+                else if (/null/.test(match)) cls = 'json-null';
+                return `<span class="${cls}">${match}</span>`;
+            });
+        },
+    };
+
+    /* ==========================================================
+     * VIEW: PIN SIDEBAR
+     * ========================================================== */
+    const PinSidebar = {
+        els: {},
+        mount() {
+            this.els.sidebar = document.getElementById('pin-sidebar');
+            this.els.overlay = document.getElementById('pin-overlay');
+            this.els.list = document.getElementById('pin-list');
+            this.els.count = document.getElementById('pin-count');
+            this.render();
+        },
+
+        render() {
+            const pins = PinStore.state.items;
+            if (this.els.count) this.els.count.textContent = pins.length;
+
+            if (pins.length === 0) {
+                this.els.list.innerHTML = `<div class="text-xs text-slate-400 dark:text-slate-600 text-center py-6 italic">No pinned prompts yet.<br>Pin a user message to see it here.</div>`;
+                return;
+            }
+
+            this.els.list.innerHTML = pins.map(pin => {
+                const autoBadge = pin.isAuto ? '<span class="text-[8px] px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 font-semibold uppercase tracking-wide shrink-0">auto</span>' : '';
+                const defBadge = pin.isDefault ? '<span class="text-[8px] px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 font-semibold uppercase tracking-wide shrink-0">default</span>' : '';
+                const t = Utils.escapeForAttribute(pin.text);
+                return `
+                    <div class="pin-item group relative flex items-center gap-1.5 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors" data-action="send-pinned" data-text="${t}">
+                        <svg class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                        <span class="flex-1 text-xs text-slate-700 dark:text-slate-300 truncate" title="${Utils.escapeHtml(pin.text)}">${Utils.escapeHtml(pin.text)}</span>
+                        ${autoBadge}${defBadge}
+                        <button data-action="remove-pin" data-id="${pin.id}" data-stop="1" class="pin-actions p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-all" title="Remove pin">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        },
+
+        syncOpenState() {
+            if (PinStore.state.sidebarOpen) {
+                this.els.sidebar.classList.add('open');
+                this.els.overlay.classList.remove('hidden');
+            } else {
+                this.els.sidebar.classList.remove('open');
+                this.els.overlay.classList.add('hidden');
+            }
+        },
+    };
+
+    /* ==========================================================
+     * VIEW: HEADER
+     * ========================================================== */
+    const HeaderView = {
+        els: {},
+        mount() {
+            this.els.loginBtn = document.getElementById('login-btn');
+            this.els.userInfo = document.getElementById('user-info');
+            this.els.userName = document.getElementById('user-name');
+            this.els.userRole = document.getElementById('user-role');
+            this.render();
+        },
+        render() {
+            if (!this.els.loginBtn || !this.els.userInfo) {
+                console.warn('[Header] Missing elements');
+                return;
+            }
+            if (AuthStore.isAuthenticated) {
+                this.els.loginBtn.classList.add('hidden');
+                this.els.userInfo.classList.remove('hidden');
+                this.els.userInfo.classList.add('flex');
+                this.els.userName.textContent = AuthStore.displayName;
+                if (AuthStore.displayRole) {
+                    this.els.userRole.textContent = AuthStore.displayRole;
+                    this.els.userRole.classList.remove('hidden');
+                } else {
+                    this.els.userRole.textContent = '';
+                    this.els.userRole.classList.add('hidden');
+                }
+                console.log('[Header] Logged in as', AuthStore.displayName);
+            } else {
+                this.els.loginBtn.classList.remove('hidden');
+                this.els.userInfo.classList.add('hidden');
+                this.els.userInfo.classList.remove('flex');
+                console.log('[Header] Logged out');
+            }
+        },
+    };
+
+    /* ==========================================================
+     * VIEW: LOGIN MODAL
+     * ========================================================== */
+    const LoginModal = {
+        els: {},
+        mount() {
+            this.els.modal = document.getElementById('login-modal');
+            this.els.form = document.getElementById('login-form');
+            this.els.email = document.getElementById('login-email');
+            this.els.password = document.getElementById('login-password');
+            this.els.error = document.getElementById('login-error');
+            this.els.submit = document.getElementById('login-submit-btn');
+
+            this.els.form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                Actions.submitLogin();
+            });
+        },
+        open() {
+            this.els.error.classList.add('hidden');
+            this.els.modal.classList.remove('hidden');
+            this.els.modal.classList.add('flex');
+            setTimeout(() => this.els.email.focus(), 100);
+        },
+        close() {
+            this.els.modal.classList.add('hidden');
+            this.els.modal.classList.remove('flex');
+            this.els.form.reset();
+        },
+        setError(msg) {
+            this.els.error.textContent = msg;
+            this.els.error.classList.remove('hidden');
+        },
+        setLoading(state) {
+            this.els.submit.disabled = state;
+            this.els.submit.textContent = state ? 'Logging in...' : 'Login';
+        },
+    };
+
+    /* ==========================================================
+     * VIEW: PREVIEW MODAL
+     * ========================================================== */
+    const PreviewModal = {
+        state: { url: '', name: '', type: '', mime: '' },
+        els: {},
+        mount() {
+            this.els.modal = document.getElementById('preview-modal');
+            this.els.content = document.getElementById('preview-content');
+            this.els.title = document.getElementById('preview-title');
+        },
+        open({ url, name, type, mime }) {
+            this.state = { url, name, type, mime };
+            this.els.title.textContent = name;
+
+            let fullUrl = url;
+            if (url.startsWith('/')) fullUrl = window.location.origin + url;
+
+            this.els.content.innerHTML = this.buildContent(fullUrl, name, type, mime);
+            this.els.modal.classList.remove('hidden');
+            this.els.modal.classList.add('flex');
+        },
+        buildContent(fullUrl, name, type, mime) {
+            if (type === 'image') {
+                return `<div class="flex items-center justify-center min-h-[300px]"><img src="${Utils.escapeHtml(fullUrl)}" alt="${Utils.escapeHtml(name)}" class="max-h-[70vh] w-full object-contain rounded-lg border border-slate-200 dark:border-slate-700" onerror="this.outerHTML='<div class=&quot;p-12 text-center text-slate-400 dark:text-slate-500&quot;><div class=&quot;text-6xl mb-4&quot;>🖼️</div><p class=&quot;text-sm&quot;>Image could not be loaded.</p></div>'" /></div>`;
+            }
+            if (type === 'pdf') {
+                return `<div class="h-[70vh] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700"><iframe src="${Utils.escapeHtml(fullUrl)}" class="w-full h-full border-none" title="${Utils.escapeHtml(name)}"></iframe></div><p class="text-xs mt-2 text-center text-slate-400 dark:text-slate-500">If the PDF doesn't display, your browser may not support embedded previews. Use the download button.</p>`;
+            }
+            if (type === 'excel' || type === 'word') {
+                const icon = type === 'excel' ? '📊' : '📝';
+                const label = type === 'excel' ? 'Excel Spreadsheet' : 'Word Document';
+                return `<div class="p-10 text-center text-slate-400 dark:text-slate-500"><div class="text-6xl mb-4">${icon}</div><p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">${label} Preview</p><p class="text-xs mb-4">This file type cannot be previewed directly in the browser.</p><p class="text-xs">Use the <strong>Download</strong> button below to open it in your local application.</p></div>`;
+            }
+            if (type === 'zip') {
+                return `<div class="p-10 text-center text-slate-400 dark:text-slate-500"><div class="text-6xl mb-4">📦</div><p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">ZIP Archive</p><p class="text-xs mb-4">Archive contents cannot be previewed directly.</p><p class="text-xs">Download the file to extract and view its contents.</p></div>`;
+            }
+            if ((type === 'binary' || type === 'generic') && mime && (mime.startsWith('image/') || mime === 'application/pdf')) {
+                return `<div class="h-[70vh] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700"><iframe src="${Utils.escapeHtml(fullUrl)}" class="w-full h-full border-none"></iframe></div>`;
+            }
+            return `<div class="p-10 text-center text-slate-400 dark:text-slate-500"><div class="text-6xl mb-4">📄</div><p class="text-sm">Preview not available. Please download.</p></div>`;
+        },
+        close() {
+            this.els.modal.classList.add('hidden');
+            this.els.modal.classList.remove('flex');
+            this.els.content.innerHTML = '';
+            this.state = { url: '', name: '', type: '', mime: '' };
+        },
+        download() {
+            if (!this.state.url) return;
+            const a = document.createElement('a');
+            a.href = this.state.url;
+            a.download = this.state.name || 'download';
+            a.click();
+        },
+    };
+
+    /* ==========================================================
+     * ACTIONS
+     * ========================================================== */
+    const Actions = {
+        showPage(name) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            const target = document.getElementById('page-' + name);
+            if (target) {
+                target.classList.remove('hidden');
+                if (name === 'chat') target.classList.add('flex');
+            }
+            if (name === 'chat') setTimeout(() => document.getElementById('prompt-input')?.focus(), 100);
+            PinStore.closeSidebar();
+            PinSidebar.syncOpenState();
+        },
+
+        toggleTheme() { ThemeStore.toggle(); },
+
+        togglePinSidebar() {
+            PinStore.toggleSidebar();
+            PinSidebar.syncOpenState();
+        },
+
+        closePinSidebar() {
+            PinStore.closeSidebar();
+            PinSidebar.syncOpenState();
+        },
+
+        sendPinnedPrompt(text) {
+            const input = document.getElementById('prompt-input');
+            input.value = text;
+            ChatView.autoResize();
+            input.focus();
+            Actions.closePinSidebar();
+        },
+
+        removePin(id) {
+            PinStore.remove(id);
+            PinSidebar.render();
+        },
+
+        clearAllPins() {
+            PinStore.clearAll();
+            PinSidebar.render();
+        },
+
+        restoreDefaultPins() {
+            PinStore.restoreDefaults();
+            PinSidebar.render();
+        },
+
+        openLoginModal() { LoginModal.open(); },
+        closeLoginModal() { LoginModal.close(); },
+
+        async submitLogin() {
+            const email = LoginModal.els.email.value.trim();
+            const password = LoginModal.els.password.value;
+
+            LoginModal.setLoading(true);
+            const result = await AuthStore.login(email, password);
+            LoginModal.setLoading(false);
+
+            if (result.ok) {
+                LoginModal.close();
+                HeaderView.render();
+            } else {
+                LoginModal.setError(result.error);
+            }
+        },
+
+        logout() {
+            AuthStore.logout();
+            HeaderView.render();
+        },
+
+        async sendPrompt() {
+            const input = document.getElementById('prompt-input');
+            const prompt = input.value.trim();
+            if (!prompt) return;
+
+            /* Warn user if unauthenticated — the API will 401 anyway */
+            if (!AuthStore.isAuthenticated) {
+                console.warn('[Chat] Attempting to send without authentication. Backend will return 401.');
+            }
+
+            ChatView.setSending(true);
+
+            ChatView.appendMessage({
+                content: prompt,
+                sender: 'user',
+                isHtml: true,
+                rawText: prompt,
+            });
+
+            PinStore.addAuto(prompt);
+            PinSidebar.render();
+
+            input.value = '';
+            ChatView.autoResize();
+
+            /* Local JSON shortcut */
+            const localJson = Utils.tryParseJson(prompt);
+            if (localJson) {
+                const loadingId = ChatView.showLoading();
+                setTimeout(() => {
+                    ChatView.removeLoading(loadingId);
+                    ChatView.appendMessage({
+                        content: Renderers.response(localJson, null),
+                        sender: 'ai',
+                        isHtml: true,
+                    });
+                    ChatView.setSending(false);
+                    input.focus();
+                }, 300);
+                return;
+            }
+
+            const loadingId = ChatView.showLoading();
+
+            try {
+                const result = await ChatStore.sendPrompt(prompt);
+                ChatView.removeLoading(loadingId);
+
+                if (result.kind === 'binary') {
+                    const { status, file } = result;
+                    let html = '';
+                    if (status >= 400) {
+                        html += `<div class="mb-3 text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-2 bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/50">Failed to generate file (HTTP ${status})</div>`;
+                    } else {
+                        html += `<div class="mb-3 text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>File generated successfully</div>`;
+                        html += Renderers.fileCard(file);
+                    }
+                    ChatView.appendMessage({ content: html, sender: 'ai', isHtml: true });
+                    return;
+                }
+
+                /* JSON response */
+                const { status, data } = result;
+
+                if (status === 401) {
+                    ChatView.appendMessage({
+                        content: 'Your session has expired or you are not logged in. Please login again.',
+                        sender: 'ai',
+                        isError: true,
+                    });
+                    AuthStore.logout();
+                    HeaderView.render();
+                    Actions.openLoginModal();
+                    return;
+                }
+
+                if (status === 403 || data.status === 'error') {
+                    ChatView.appendMessage({
+                        content: data.message || 'Unauthorized action.',
+                        sender: 'ai',
+                        isError: true,
+                    });
+                    return;
+                }
+
+                const isSuccess = data.status === 'success' ||
+                                  data.success === true ||
+                                  (data.result && data.result.success === true);
+
+                if (isSuccess) {
+                    ChatView.appendMessage({
+                        content: Renderers.response(data, data.action),
+                        sender: 'ai',
+                        isHtml: true,
+                    });
+                } else {
+                    ChatView.appendMessage({
+                        content: data.message || 'No response generated.',
+                        sender: 'ai',
+                        isError: true,
+                    });
+                }
+            } catch (error) {
+                ChatView.removeLoading(loadingId);
+                ChatView.appendMessage({
+                    content: 'Network or server error occurred.',
+                    sender: 'ai',
+                    isError: true,
+                });
+                console.error('[Chat] Error:', error);
+            } finally {
+                ChatView.setSending(false);
+                input.focus();
+            }
+        },
+
+        resubmitPrompt(text) {
+            const input = document.getElementById('prompt-input');
+            input.value = text;
+            ChatView.autoResize();
+            input.focus();
+        },
+
+        pinPrompt(text) {
+            PinStore.addManual(text);
+            PinSidebar.render();
+        },
+
+        copyUserPrompt(text) {
+            navigator.clipboard.writeText(text).catch(() => alert('Copy failed'));
+        },
+
+        copyResponse(btn) {
+            const wrapper = btn.closest('.flex-col');
+            const bubble = wrapper.querySelector('.rounded-2xl');
+            const raw = bubble.dataset.rawContent || bubble.innerText;
+            const isHtml = bubble.dataset.isHtml === 'true';
+            let text = raw;
+            if (isHtml) {
+                const tmp = document.createElement('div');
+                tmp.innerHTML = raw;
+                text = tmp.innerText || tmp.textContent || '';
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = btn.innerHTML;
+                btn.innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+                setTimeout(() => { btn.innerHTML = orig; }, 1500);
+            }).catch(() => alert('Copy failed'));
+        },
+
+        exportResponse(btn) {
+            const wrapper = btn.closest('.flex-col');
+            const bubble = wrapper.querySelector('.rounded-2xl');
+            const raw = bubble.dataset.rawContent || bubble.innerText;
+            const isHtml = bubble.dataset.isHtml === 'true';
+            let text = raw;
+            if (isHtml) {
+                const tmp = document.createElement('div');
+                tmp.innerHTML = raw;
+                text = tmp.innerText || tmp.textContent || '';
+            }
+            Utils.downloadJson(
+                { exportedAt: new Date().toISOString(), content: text, isHtml, rawHtml: isHtml ? raw : null },
+                `ai-response-${Date.now()}.json`
+            );
+        },
+
+        toggleRawJson(btn) {
+            const wrapper = btn.closest('.flex-col');
+            const bubble = wrapper.querySelector('.rounded-2xl');
+            const container = bubble.querySelector('.raw-json-container');
+            const label = btn.querySelector('.raw-json-label');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                if (label) label.textContent = 'Hide raw JSON';
+            } else {
+                container.classList.add('hidden');
+                if (label) label.textContent = 'Show raw JSON';
+            }
+        },
+
+        exportFullResponse(btn) {
+            const wrapper = btn.closest('.flex-col');
+            const bubble = wrapper.querySelector('.rounded-2xl');
+            const raw = bubble.dataset.rawJson;
+            if (!raw) { alert('No raw JSON available'); return; }
+            try { Utils.downloadJson(JSON.parse(raw), `ai-response-${Date.now()}.json`); }
+            catch (e) { alert('Failed to parse JSON'); }
+        },
+
+        gotoPage(page) {
+            const input = document.getElementById('prompt-input');
+            input.value = `Show page ${page} of the previous data`;
+            Actions.sendPrompt();
+        },
+
+        editPrompt(btn, originalText) {
+            const wrapper = btn.closest('.flex-col');
+            const bubble = wrapper.querySelector('.rounded-2xl');
+            if (!bubble || bubble.dataset.editing === 'true') return;
+
+            bubble.dataset.editing = 'true';
+            const originalHtml = bubble.innerHTML;
+
+            bubble.innerHTML = `
+                <div class="flex flex-col gap-2">
+                    <textarea class="w-full bg-white/20 dark:bg-slate-800/50 border border-white/30 dark:border-slate-600 rounded-lg px-3 py-2 text-sm text-white dark:text-slate-100 resize-none focus:outline-none focus:ring-2 focus:ring-white/50 dark:focus:ring-indigo-500/50" rows="3">${Utils.escapeHtml(originalText)}</textarea>
+                    <div class="flex gap-2 justify-end">
+                        <button class="save-edit text-xs px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors">Save</button>
+                        <button class="cancel-edit text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 transition-colors">Cancel</button>
+                    </div>
+                </div>
+            `;
+
+            const textarea = bubble.querySelector('textarea');
+            textarea.focus();
+            textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+
+            bubble.querySelector('.save-edit').addEventListener('click', () => {
+                const newText = textarea.value.trim();
+                if (newText && newText !== originalText) {
+                    bubble.dataset.editing = 'false';
+                    bubble.innerHTML = `<p>${Utils.escapeHtml(newText)}</p>`;
+                    bubble.dataset.rawContent = Utils.escapeHtml(newText);
+
+                    const t = Utils.escapeForAttribute(newText);
+                    const editBtn = wrapper.querySelector('[data-action="edit-prompt"]');
+                    if (editBtn) editBtn.dataset.text = t;
+                    const pinBtn = wrapper.querySelector('[data-action="pin-prompt"]');
+                    if (pinBtn) pinBtn.dataset.text = t;
+                    const resubmitBtn = wrapper.querySelector('[data-action="resubmit-prompt"]');
+                    if (resubmitBtn) resubmitBtn.dataset.text = t;
+                    const copyBtn = wrapper.querySelector('[data-action="copy-prompt"]');
+                    if (copyBtn) copyBtn.dataset.text = t;
+                } else {
+                    bubble.dataset.editing = 'false';
+                    bubble.innerHTML = originalHtml;
+                }
+            });
+
+            bubble.querySelector('.cancel-edit').addEventListener('click', () => {
+                bubble.dataset.editing = 'false';
+                bubble.innerHTML = originalHtml;
+            });
+        },
+
+        previewFile(btn) {
+            const { url, name, type, mime } = btn.dataset;
+            PreviewModal.open({ url, name, type, mime });
+        },
+
+        closePreview() { PreviewModal.close(); },
+        downloadPreview() { PreviewModal.download(); },
+    };
+
+    /* ==========================================================
+     * GLOBAL EVENT ROUTER (delegation)
+     * ========================================================== */
+    const EventRouter = {
+        mount() {
+            document.body.addEventListener('click', (e) => {
+                const target = e.target.closest('[data-action]');
+                if (!target) return;
+                const action = target.dataset.action;
+
+                if (target.dataset.stop === '1') e.stopPropagation();
+
+                switch (action) {
+                    case 'show-page': Actions.showPage(target.dataset.page); break;
+                    case 'toggle-theme': Actions.toggleTheme(); break;
+                    case 'toggle-pin-sidebar': Actions.togglePinSidebar(); break;
+                    case 'close-pin-sidebar': Actions.closePinSidebar(); break;
+                    case 'open-login': Actions.openLoginModal(); break;
+                    case 'close-login': Actions.closeLoginModal(); break;
+                    case 'logout': Actions.logout(); break;
+                    case 'send-prompt': Actions.sendPrompt(); break;
+                    case 'send-pinned': Actions.sendPinnedPrompt(target.dataset.text); break;
+                    case 'remove-pin': Actions.removePin(target.dataset.id); break;
+                    case 'clear-all-pins': Actions.clearAllPins(); break;
+                    case 'restore-default-pins': Actions.restoreDefaultPins(); break;
+                    case 'copy-response': Actions.copyResponse(target); break;
+                    case 'export-response': Actions.exportResponse(target); break;
+                    case 'toggle-raw': Actions.toggleRawJson(target); break;
+                    case 'export-full': Actions.exportFullResponse(target); break;
+                    case 'goto-page': Actions.gotoPage(Number(target.dataset.page)); break;
+                    case 'copy-prompt': Actions.copyUserPrompt(target.dataset.text); break;
+                    case 'pin-prompt': Actions.pinPrompt(target.dataset.text); break;
+                    case 'resubmit-prompt': Actions.resubmitPrompt(target.dataset.text); break;
+                    case 'edit-prompt': Actions.editPrompt(target, target.dataset.text); break;
+                    case 'preview-file': Actions.previewFile(target); break;
+                    case 'close-preview': Actions.closePreview(); break;
+                    case 'download-preview': Actions.downloadPreview(); break;
+                    default: console.warn('[EventRouter] Unknown action:', action);
+                }
+            });
+        },
+    };
+
+    /* ==========================================================
+     * GLOBAL 401 GUARD
+     * Wraps window.fetch so any 401 clears the session and
+     * re-renders the header.
+     * ========================================================== */
+    const installAuthGuard = () => {
+        const originalFetch = window.fetch;
+        window.fetch = async function (...args) {
+            const res = await originalFetch.apply(this, args);
+            if (res.status === 401) {
+                const url = typeof args[0] === 'string' ? args[0] : args[0]?.url;
+                const isLoginRequest = url && url.includes('/login');
+                if (!isLoginRequest && AuthStore.isAuthenticated) {
+                    console.warn('[AuthGuard] 401 received from', url, '— clearing session');
+                    AuthStore.clear();
+                    HeaderView.render();
+                }
+            }
+            return res;
+        };
+    };
+
+    /* ==========================================================
+     * APP LIFECYCLE
+     * ========================================================== */
+    const App = {
+        mounted: false,
+
+        init() {
+            if (this.mounted) return;
+
+            /* Load persisted state */
+            ThemeStore.load();
+            AuthStore.load();
+            PinStore.load();
+            PinStore.initDefaults();
+
+            /* Mount views */
+            ChatView.mount();
+            PinSidebar.mount();
+            HeaderView.mount();
+            LoginModal.mount();
+            PreviewModal.mount();
+            EventRouter.mount();
+            installAuthGuard();
+
+            /* Re-sync header on focus / bfcache restore */
+            window.addEventListener('pageshow', () => HeaderView.render());
+            window.addEventListener('focus', () => HeaderView.render());
+
+            /* OS theme listener (only if user hasn't chosen) */
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                if (!Storage.get(STORAGE_KEYS.THEME)) {
+                    ThemeStore.state.current = e.matches ? 'dark' : 'light';
+                    ThemeStore.apply();
+                }
+            });
+
+            ChatView.autoResize();
+
+            /* Debug helper */
+            window.__AIBridgeDebug = () => {
+                console.table({
+                    'Auth token (first 20)': (AuthStore.state.token || '').substring(0, 20),
+                    'Token in localStorage': (Storage.get(STORAGE_KEYS.AUTH_TOKEN) || '').substring(0, 20),
+                    'Is authenticated': AuthStore.isAuthenticated,
+                    'User name': AuthStore.displayName,
+                    'User role': AuthStore.displayRole,
+                    'Pin count': PinStore.count,
+                });
+                console.log('Full user object:', AuthStore.state.user);
+                return 'Debug info printed above.';
             };
 
-            let htmlContent = '';
-            if (response.status >= 400) {
-                htmlContent += `<div class="mb-3 text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-2"
-                    style="background: var(--error-bg); color: var(--error-text); border: 1px solid var(--error-border);">
-                    Failed to generate file (HTTP ${response.status})
-                </div>`;
-            } else {
-                htmlContent += `<div class="mb-3 text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-2"
-                    style="background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border);">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    File generated successfully
-                </div>`;
-                htmlContent += renderFileCard(fileRes);
-            }
+            this.mounted = true;
+            console.log('[App] Mounted. Auth:', AuthStore.isAuthenticated, '| Pins:', PinStore.count);
+        },
+    };
 
-            appendMessage(htmlContent, 'ai', false, true);
-
-            const bubbles = chatContainer.querySelectorAll('.message-wrapper');
-            const lastBubble = bubbles[bubbles.length - 1]?.querySelector('.rounded-2xl');
-            if (lastBubble) {
-                lastBubble.dataset.objectUrl = objectUrl;
-                lastBubble.dataset.rawJson = JSON.stringify({
-                    file: filename, mime: contentType, size: blob.size, generatedAt: new Date().toISOString()
-                });
-            }
-
-            sendBtn.disabled = false;
-            promptInput.focus();
-            return;
-        }
-
-        // CASE 2: JSON response
-        const data = await response.json();
-        removeLoadingIndicator(loadingId);
-
-        if (response.status === 401) {
-            appendMessage('Your session has expired. Please login again.', 'ai', true, false);
-            clearAuthSession();
-            openLoginModal();
-            return;
-        }
-        if (response.status === 403 || data.status === 'error') {
-            appendMessage(data.message || 'Unauthorized action.', 'ai', true, false);
-            return;
-        }
-
-        // Accept any of these success markers
-        const isSuccess = data.status === 'success' ||
-                          data.success === true ||
-                          (data.result && data.result.success === true);
-
-        if (isSuccess) {
-            renderResponse(data, data.action);
-        } else {
-            appendMessage(data.message || 'No response generated.', 'ai', true, false);
-        }
-    } catch (error) {
-        removeLoadingIndicator(loadingId);
-        appendMessage('Network or server error occurred.', 'ai', true, false);
-        console.error('Error sending prompt:', error);
-    } finally {
-        sendBtn.disabled = false;
-        promptInput.focus();
+    /* ==========================================================
+     * BOOTSTRAP
+     * ========================================================== */
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => App.init());
+    } else {
+        App.init();
     }
-}
-
-/* ============================================================
-   HELPER: Extract filename from Content-Disposition
-   ============================================================ */
-function extractFilenameFromDisposition(disposition) {
-    if (!disposition) return null;
-    const utf8Match = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
-    if (utf8Match) {
-        try { return decodeURIComponent(utf8Match[1].trim().replace(/^["']|["']$/g, '')); } catch (e) {}
-    }
-    const stdMatch = disposition.match(/filename\s*=\s*"?([^";]+)"?/i);
-    if (stdMatch) return stdMatch[1].trim();
-    return null;
-}
-
-function filenameWithExtensionFromMime(mime, currentName) {
-    const base = currentName && currentName !== 'download' ? currentName.replace(/\.[^.]+$/, '') : 'download';
-    const ext = mimeToExtension(mime);
-    return `${base}.${ext}`;
-}
-
-function mimeToExtension(mime) {
-    if (!mime) return 'bin';
-    if (mime.includes('pdf')) return 'pdf';
-    if (mime.includes('spreadsheetml') || mime.includes('ms-excel')) return 'xlsx';
-    if (mime.includes('wordprocessingml') || mime.includes('msword')) return 'docx';
-    if (mime.includes('presentationml') || mime.includes('ms-powerpoint')) return 'pptx';
-    if (mime.includes('zip')) return 'zip';
-    if (mime.includes('rar')) return 'rar';
-    if (mime.includes('7z')) return '7z';
-    if (mime.includes('gzip')) return 'gz';
-    if (mime.includes('tar')) return 'tar';
-    if (mime.includes('csv')) return 'csv';
-    if (mime.includes('png')) return 'png';
-    if (mime.includes('jpeg') || mime.includes('jpg')) return 'jpg';
-    if (mime.includes('gif')) return 'gif';
-    if (mime.includes('webp')) return 'webp';
-    if (mime.includes('svg')) return 'svg';
-    if (mime.includes('octet-stream')) return 'bin';
-    return 'bin';
-}
-
-/* ============================================================
-   BIND TEXTAREA & SEND BUTTON
-   ============================================================ */
-promptInput.addEventListener('input', function () {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 160) + 'px';
-});
-
-promptInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        if (typeof window.sendPrompt === 'function') window.sendPrompt();
-    }
-});
-
-sendBtn.addEventListener('click', function () {
-    if (typeof window.sendPrompt === 'function') window.sendPrompt();
-});
-
-/* ============================================================
-   INIT & GLOBAL EXPORTS
-   ============================================================ */
-updateAuthUI();
-promptInput.style.height = 'auto';
-promptInput.style.height = Math.min(promptInput.scrollHeight, 160) + 'px';
-
-window.toggleTheme = toggleTheme;
-window.showPage = showPage;
-window.openLoginModal = openLoginModal;
-window.closeLoginModal = closeLoginModal;
-window.submitLogin = submitLogin;
-window.logout = logout;
-window.sendPrompt = sendPrompt;
-window.copyMessageContent = copyMessageContent;
-window.exportMessageJson = exportMessageJson;
-window.resubmitPrompt = resubmitPrompt;
-window.previewAttachment = previewAttachment;
-window.previewFileResource = previewFileResource;
-window.closePreviewModal = closePreviewModal;
-window.downloadPreviewFile = downloadPreviewFile;
-window.toggleRawJson = toggleRawJson;
-window.exportFullResponse = exportFullResponse;
-window.goToPage = goToPage;
-
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-    if (!localStorage.getItem('ai_bridge_theme')) applyTheme(e.matches ? 'dark' : 'light');
-});
+})();
 </script>
 </body>
 </html>
