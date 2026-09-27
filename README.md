@@ -336,13 +336,21 @@ class ListUsersTool extends AbstractTool
 }
 ```
 
-Register it (e.g. in a service provider's `boot()`, or list it in `config/ai-bridge.php`):
+Register it (list it in `config/ai-bridge.php`) or e.g. in a service provider's `boot()`:
+
+```php
+'tools' => [
+        \App\AiTools\ListUsersTool::class,
+    ],
+```
+# Or
 
 ```php
 use Sharifuddin\LaravelAiBridge\Facades\AI;
 
 AI::tool(\App\AiTools\ListUsersTool::class);
 ```
+
 
 ### Custom tool example for your own app
 
@@ -414,16 +422,21 @@ class WeatherTool extends AbstractTool
 }
 ```
 
-And register it in a service provider:
+And register it (list it in `config/ai-bridge.php`) or e.g. in a service provider's `boot()`:
+
+```php
+'tools' => [
+        \App\AiTools\WeatherTool::class,
+    ],
+```
+# Or
 
 ```php
 use Sharifuddin\LaravelAiBridge\Facades\AI;
 
-public function boot(): void
-{
-    AI::tool(\App\AiTools\WeatherTool::class);
-}
+AI::tool(\App\AiTools\WeatherTool::class);
 ```
+ 
 
 Then index and ask the assistant:
 
